@@ -1,0 +1,6 @@
+@IngressService.Api_HostAddress = http://localhost:5264
+
+GET {{IngressService.Api_HostAddress}}/test/
+Accept: application/json
+
+###
