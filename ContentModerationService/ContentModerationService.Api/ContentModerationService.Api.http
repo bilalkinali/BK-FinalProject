@@ -1,6 +1,17 @@
 @ContentModerationService.Api_HostAddress = http://localhost:5065
 
-GET {{ContentModerationService.Api_HostAddress}}/weatherforecast/
+GET {{ContentModerationService.Api_HostAddress}}/test/
 Accept: application/json
+
+###
+
+POST {{ContentModerationService.Api_HostAddress}}/moderation/
+Content-Type: application/json
+Accept: application/json
+
+{
+    "ContentId": "123",
+    "Content": "Testing 123"
+}
 
 ###
