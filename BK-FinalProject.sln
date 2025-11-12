@@ -11,6 +11,16 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IngressService.Api", "Ingre
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "IngressService", "IngressService", "{90B1B96F-9BA5-4DB5-8D78-4661D33FA9BD}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ContentModerationService", "ContentModerationService", "{2E78EF7C-DA32-42D0-8FAD-9ABA2B362FBF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ContentModerationService.Api", "ContentModerationService\ContentModerationService.Api\ContentModerationService.Api.csproj", "{024C6E47-E86F-4B64-AE89-7CD87BD1AC9D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ContentModerationService.Domain", "ContentModerationService\ContentModerationService.Domain\ContentModerationService.Domain.csproj", "{24ABAE01-1132-4F05-9DD5-A807A9CDF847}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ContentModerationService.Infrastructure", "ContentModerationService\ContentModerationService.Infrastructure\ContentModerationService.Infrastructure.csproj", "{E916E056-DA26-4B76-9BB7-A171B1137EEE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ContentModerationService.Application", "ContentModerationService\ContentModerationService.Application\ContentModerationService.Application.csproj", "{867B6E05-DFD0-46D8-8624-8B7A46C20ADC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -25,6 +35,22 @@ Global
 		{C8F10C03-D33C-470D-ADA3-9A23A0BB425E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C8F10C03-D33C-470D-ADA3-9A23A0BB425E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C8F10C03-D33C-470D-ADA3-9A23A0BB425E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{024C6E47-E86F-4B64-AE89-7CD87BD1AC9D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{024C6E47-E86F-4B64-AE89-7CD87BD1AC9D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{024C6E47-E86F-4B64-AE89-7CD87BD1AC9D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{024C6E47-E86F-4B64-AE89-7CD87BD1AC9D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{24ABAE01-1132-4F05-9DD5-A807A9CDF847}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{24ABAE01-1132-4F05-9DD5-A807A9CDF847}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{24ABAE01-1132-4F05-9DD5-A807A9CDF847}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{24ABAE01-1132-4F05-9DD5-A807A9CDF847}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E916E056-DA26-4B76-9BB7-A171B1137EEE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E916E056-DA26-4B76-9BB7-A171B1137EEE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E916E056-DA26-4B76-9BB7-A171B1137EEE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E916E056-DA26-4B76-9BB7-A171B1137EEE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{867B6E05-DFD0-46D8-8624-8B7A46C20ADC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{867B6E05-DFD0-46D8-8624-8B7A46C20ADC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{867B6E05-DFD0-46D8-8624-8B7A46C20ADC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{867B6E05-DFD0-46D8-8624-8B7A46C20ADC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -32,6 +58,10 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{F5AB6871-32FE-420B-8DC8-86FD1F57CBA3} = {D6853363-232B-4E6A-A080-271EA181DC06}
 		{C8F10C03-D33C-470D-ADA3-9A23A0BB425E} = {90B1B96F-9BA5-4DB5-8D78-4661D33FA9BD}
+		{024C6E47-E86F-4B64-AE89-7CD87BD1AC9D} = {2E78EF7C-DA32-42D0-8FAD-9ABA2B362FBF}
+		{24ABAE01-1132-4F05-9DD5-A807A9CDF847} = {2E78EF7C-DA32-42D0-8FAD-9ABA2B362FBF}
+		{E916E056-DA26-4B76-9BB7-A171B1137EEE} = {2E78EF7C-DA32-42D0-8FAD-9ABA2B362FBF}
+		{867B6E05-DFD0-46D8-8624-8B7A46C20ADC} = {2E78EF7C-DA32-42D0-8FAD-9ABA2B362FBF}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0E50BAFA-530D-4006-942A-9F313B743425}
