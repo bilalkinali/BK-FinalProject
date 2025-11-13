@@ -7,9 +7,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Gateway", "Gateway", "{D685
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gateway.Api", "Gateway\Gateway.Api\Gateway.Api.csproj", "{F5AB6871-32FE-420B-8DC8-86FD1F57CBA3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IngressService.Api", "IngressService\IngressService.Api\IngressService.Api.csproj", "{C8F10C03-D33C-470D-ADA3-9A23A0BB425E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SalesforceService.Api", "SalesforceService\SalesforceService.Api\SalesforceService.Api.csproj", "{C8F10C03-D33C-470D-ADA3-9A23A0BB425E}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "IngressService", "IngressService", "{90B1B96F-9BA5-4DB5-8D78-4661D33FA9BD}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SalesforceService", "SalesforceService", "{90B1B96F-9BA5-4DB5-8D78-4661D33FA9BD}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ContentModerationService", "ContentModerationService", "{2E78EF7C-DA32-42D0-8FAD-9ABA2B362FBF}"
 EndProject

@@ -15,6 +15,6 @@ if (app.Environment.IsDevelopment())
 //app.UseHttpsRedirection();
 
 
-app.MapGet("/test", () => "Hello World - From Ingress Service"); 
+app.MapGet("/test", () => "Hello World - From Salesforce Service"); 
 
 app.Run();

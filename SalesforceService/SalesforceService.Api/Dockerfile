@@ -12,19 +12,19 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["IngressService/IngressService.Api/IngressService.Api.csproj", "IngressService/IngressService.Api/"]
-RUN dotnet restore "./IngressService/IngressService.Api/IngressService.Api.csproj"
+COPY ["SalesforceService/SalesforceService.Api/SalesforceService.Api.csproj", "SalesforceService/SalesforceService.Api/"]
+RUN dotnet restore "./SalesforceService/SalesforceService.Api/SalesforceService.Api.csproj"
 COPY . .
-WORKDIR "/src/IngressService/IngressService.Api"
-RUN dotnet build "./IngressService.Api.csproj" -c $BUILD_CONFIGURATION -o /app/build
+WORKDIR "/src/SalesforceService/SalesforceService.Api"
+RUN dotnet build "./SalesforceService.Api.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 # This stage is used to publish the service project to be copied to the final stage
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./IngressService.Api.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "./SalesforceService.Api.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 # This stage is used in production or when running from VS in regular mode (Default when not using the Debug configuration)
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "IngressService.Api.dll"]
+ENTRYPOINT ["dotnet", "SalesforceService.Api.dll"]
