@@ -46,7 +46,7 @@ public class SalesforceInboundSubscriber : BackgroundService
     private async Task SubscribeToSalesforceAsync(CancellationToken cancellationToken)
     {
         // Get Session ID and instance URL
-        var (sessionId, instanceUrl) = await _authService.GetSessionAsync();
+        var (accessToken, instanceUrl) = await _authService.GetSessionAsync();
 
         // Create gRPC channel
         var channel = GrpcChannel.ForAddress(_configuration["Salesforce:PubSubEndpoint"]!);
@@ -58,16 +58,16 @@ public class SalesforceInboundSubscriber : BackgroundService
         // Simplified metadata with session ID and instance URL for testing (Grpc.Core)
         var metadata = new Metadata
         {
-            { "accesstoken", sessionId },
+            { "accesstoken", accessToken },
             { "instanceurl", instanceUrl },
-            { "tenantid", "unused" } // This is not needed with session auth, but required
+            { "tenantid", "00DgK00000Euikf" }
         };
 
         // Start bidirectional streaming
         using var call = client.Subscribe(metadata, cancellationToken: cancellationToken);
 
         // Send subscription request
-        var topicName = "/event/CloudNews__e"; // Salesforce Platform Event API name
+        var topicName = "/event/Test_Events__e"; // Salesforce Platform Event API name
         var subscribeRequest = new FetchRequest
         {
             TopicName = topicName,
@@ -89,12 +89,12 @@ public class SalesforceInboundSubscriber : BackgroundService
                 await ProcessEventAsync(evt);
             }
 
-            // Request more events
-            await call.RequestStream.WriteAsync(new FetchRequest
-            {
-                TopicName = topicName,
-                NumRequested = 10
-            }, cancellationToken);
+            //// Request more events
+            //await call.RequestStream.WriteAsync(new FetchRequest
+            //{
+            //    TopicName = topicName,
+            //    NumRequested = 10
+            //}, cancellationToken);
         }
     }
 

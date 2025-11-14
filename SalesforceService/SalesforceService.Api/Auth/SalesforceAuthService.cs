@@ -1,4 +1,4 @@
-﻿using System.Xml.Linq;
+﻿using System.Text.Json;
 
 namespace SalesforceService.Api.Auth;
 
@@ -6,61 +6,53 @@ public class SalesforceAuthService
 {
     private readonly IConfiguration _configuration;
     private readonly HttpClient _httpClient;
-    private string? _sessionId;
-    private string? _serverUrl;
+    private readonly ILogger<SalesforceAuthService> _logger;
 
-    public SalesforceAuthService(IConfiguration configuration, HttpClient httpClient)
+    private string? _accessToken;
+    private string? _instanceUrl;
+
+    public SalesforceAuthService(IConfiguration configuration, HttpClient httpClient, ILogger<SalesforceAuthService> logger)
     {
         _configuration = configuration;
         _httpClient = httpClient;
+        _logger = logger;
     }
 
-    public async Task<(string sessionId, string instanceUrl)> GetSessionAsync()
+    public async Task<(string accessToken, string instanceUrl)> GetSessionAsync()
     {
-        if (_sessionId != null && _serverUrl != null)
+        if (!string.IsNullOrEmpty(_accessToken) && !string.IsNullOrEmpty(_instanceUrl))
         {
-            return (_sessionId, _serverUrl);
+            return (_accessToken, _instanceUrl);
         }
 
-        var username = _configuration["Salesforce:Username"];
-        var password = _configuration["Salesforce:Password"];
+        var loginUrl = _configuration["Salesforce:LoginUrl"];
+        var clientId = _configuration["Salesforce:ClientId"];
+        var clientSecret = _configuration["Salesforce:ClientSecret"];
 
-        // SOAP login request for testing
-        var soapEnvelope = $@"<?xml version=""1.0"" encoding=""utf-8""?>
-            <soapenv:Envelope xmlns:soapenv=""http://schemas.xmlsoap.org/soap/envelope/"" 
-                              xmlns:urn=""urn:enterprise.soap.sforce.com"">
-                <soapenv:Body>
-                    <urn:login>
-                        <urn:username>{username}</urn:username>
-                        <urn:password>{password}</urn:password>
-                    </urn:login>
-                </soapenv:Body>
-            </soapenv:Envelope>";
+        var content = new FormUrlEncodedContent(new Dictionary<string, string>
+        {
+            { "grant_type", "client_credentials" },
+            { "client_id", clientId! },
+            { "client_secret", clientSecret! }
+        });
 
-        var content = new StringContent(soapEnvelope, System.Text.Encoding.UTF8, "text/xml");
-        content.Headers.Add("SOAPAction", "login");
+        _logger.LogInformation("Sending OAuth login request to Salesforce...");
 
-        var response = await _httpClient.PostAsync(
-            "https://login.salesforce.com/services/Soap/c/60.0",
-            content
-        );
+        var response = await _httpClient.PostAsync(loginUrl, content);
+        var json = await response.Content.ReadAsStringAsync();
 
-        response.EnsureSuccessStatusCode();
+        if (!response.IsSuccessStatusCode)
+        {
+            _logger.LogError("Salesforce OAuth Error Response: {Json}", json);
+            response.EnsureSuccessStatusCode();
+        }
 
-        var responseXml = await response.Content.ReadAsStringAsync();
-        var doc = XDocument.Parse(responseXml);
+        using var doc = JsonDocument.Parse(json);
+        _accessToken = doc.RootElement.GetProperty("access_token").GetString();
+        _instanceUrl = doc.RootElement.GetProperty("instance_url").GetString();
 
-        var ns = XNamespace.Get("urn:enterprise.soap.sforce.com");
-        var sessionId = doc.Descendants(ns + "sessionId").First().Value;
-        var serverUrl = doc.Descendants(ns + "serverUrl").First().Value;
+        _logger.LogInformation("Salesforce OAuth login successful. Instance={Instance}", _instanceUrl);
 
-        // Extract instance URL from serverUrl
-        var uri = new Uri(serverUrl);
-        var instanceUrl = $"{uri.Scheme}://{uri.Host}";
-
-        _sessionId = sessionId;
-        _serverUrl = instanceUrl;
-
-        return (_sessionId, _serverUrl);
+        return (_accessToken!, _instanceUrl!);
     }
 }
