@@ -27,13 +27,12 @@ app.MapPost("/moderation", (ILogger<Program> logger, ContentModerationDto payloa
                               "Content: {Content}", payload.ContentId, payload.Content);
 
         // Simulate moderation logic
-        const Action result = Action.Accept;
 
         logger.LogInformation("Content moderated:\n" +
                               "ContentId: {Id}\n" +
-                              "Action: {Action}", payload.ContentId, result);
+                              "Action: {Action}", payload.ContentId, Action.Accept);
 
-        return new ContentModeratedDto(payload.ContentId, result);
+        return new ContentModeratedDto(ContentId: payload.ContentId, Result: Action.Accept);
     });
 
 app.Run();
