@@ -21,6 +21,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ContentModerationService.In
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ContentModerationService.Application", "ContentModerationService\ContentModerationService.Application\ContentModerationService.Application.csproj", "{867B6E05-DFD0-46D8-8624-8B7A46C20ADC}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Protos", "Protos", "{CA50682A-6C2B-4501-B868-34ABDC633D6D}"
+	ProjectSection(SolutionItems) = preProject
+		SalesforceService\Protos\pubsub_api.proto = SalesforceService\Protos\pubsub_api.proto
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -62,6 +67,7 @@ Global
 		{24ABAE01-1132-4F05-9DD5-A807A9CDF847} = {2E78EF7C-DA32-42D0-8FAD-9ABA2B362FBF}
 		{E916E056-DA26-4B76-9BB7-A171B1137EEE} = {2E78EF7C-DA32-42D0-8FAD-9ABA2B362FBF}
 		{867B6E05-DFD0-46D8-8624-8B7A46C20ADC} = {2E78EF7C-DA32-42D0-8FAD-9ABA2B362FBF}
+		{CA50682A-6C2B-4501-B868-34ABDC633D6D} = {90B1B96F-9BA5-4DB5-8D78-4661D33FA9BD}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0E50BAFA-530D-4006-942A-9F313B743425}
