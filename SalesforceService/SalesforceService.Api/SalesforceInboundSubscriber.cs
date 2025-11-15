@@ -45,7 +45,7 @@ public class SalesforceInboundSubscriber : BackgroundService
 
     private async Task SubscribeToSalesforceAsync(CancellationToken cancellationToken)
     {
-        // Get Session ID and instance URL
+        // Get Access token and instance URL
         var (accessToken, instanceUrl) = await _authService.GetSessionAsync();
 
         // Create gRPC channel
@@ -55,19 +55,22 @@ public class SalesforceInboundSubscriber : BackgroundService
         adding ItemGroup <Protobuf Include="..\Protos\pubsub_api.proto" GrpcServices="Client" /> in .csproj */
         var client = new PubSub.PubSubClient(channel);
 
+        // Tenant Id for multi-tenant support - for testing, hardcoded value
+        var tenantId = _configuration["Salesforce:TenantId"] ?? null;
+
         // Simplified metadata with session ID and instance URL for testing (Grpc.Core)
         var metadata = new Metadata
         {
             { "accesstoken", accessToken },
             { "instanceurl", instanceUrl },
-            { "tenantid", "00DgK00000Euikf" }
+            { "tenantid", tenantId }
         };
 
         // Start bidirectional streaming
         using var call = client.Subscribe(metadata, cancellationToken: cancellationToken);
 
         // Send subscription request
-        var topicName = "/event/Test_Events__e"; // Salesforce Platform Event API name
+        var topicName = "/event/Cloud_News__e"; // Salesforce Platform Event API name
         var subscribeRequest = new FetchRequest
         {
             TopicName = topicName,
