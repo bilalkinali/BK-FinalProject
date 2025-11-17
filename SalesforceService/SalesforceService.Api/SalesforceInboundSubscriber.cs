@@ -108,7 +108,7 @@ public class SalesforceInboundSubscriber : BackgroundService
             _logger.LogInformation("Processing event with ReplayId: {ReplayId}",
                 consumerEvent.ReplayId.ToBase64());
 
-            // Need to payy Avro payload - for test, just simulate in logs without content
+            // Need to parse Avro payload - for test, just simulate in logs without content
         }
         catch (Exception ex)
         {
