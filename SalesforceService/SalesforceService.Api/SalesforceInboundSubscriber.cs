@@ -1,4 +1,7 @@
 ﻿//using Dapr.Client;
+using Avro;
+using Avro.Generic;
+using Avro.IO;
 using Eventbus.V1;
 using Grpc.Core;
 using Grpc.Net.Client;
@@ -9,20 +12,26 @@ namespace SalesforceService.Api;
 public class SalesforceInboundSubscriber : BackgroundService
 {
     private readonly ILogger<SalesforceInboundSubscriber> _logger;
+    private readonly PubSub.PubSubClient _client;
     //private readonly DaprClient _daprClient;
     private readonly IConfiguration _configuration;
     private readonly SalesforceAuthService _authService;
+    private readonly SalesforceSchemaService _schemaService;
 
     public SalesforceInboundSubscriber(
         ILogger<SalesforceInboundSubscriber> logger,
         //DaprClient daprClient,
+        PubSub.PubSubClient client,
         IConfiguration configuration,
-        SalesforceAuthService authService)
+        SalesforceAuthService authService,
+        SalesforceSchemaService schemaService)
     {
         _logger = logger;
+        _client = client;
         //_daprClient = daprClient;
         _configuration = configuration;
         _authService = authService;
+        _schemaService = schemaService;
     }    
 
     protected override async Task ExecuteAsync(CancellationToken cancellationToken)
@@ -48,12 +57,12 @@ public class SalesforceInboundSubscriber : BackgroundService
         // Get Access token and instance URL
         var (accessToken, instanceUrl) = await _authService.GetSessionAsync();
 
-        // Create gRPC channel
-        var channel = GrpcChannel.ForAddress(_configuration["Salesforce:PubSubEndpoint"]!);
+        //// Create gRPC channel
+        //var channel = GrpcChannel.ForAddress(_configuration["Salesforce:PubSubEndpoint"]!);
 
-        /* Imported Salesforce.EventBus.V1 after building project since
-        adding ItemGroup <Protobuf Include="..\Protos\pubsub_api.proto" GrpcServices="Client" /> in .csproj */
-        var client = new PubSub.PubSubClient(channel);
+        ///* Imported Salesforce.EventBus.V1 after building project since
+        //adding ItemGroup <Protobuf Include="..\Protos\pubsub_api.proto" GrpcServices="Client" /> in .csproj */
+        //var client = new PubSub.PubSubClient(channel);
 
         // Tenant Id for multi-tenant support - for testing, hardcoded value
         var tenantId = _configuration["Salesforce:TenantId"] ?? null;
@@ -67,7 +76,7 @@ public class SalesforceInboundSubscriber : BackgroundService
         };
 
         // Start bidirectional streaming
-        using var call = client.Subscribe(metadata, cancellationToken: cancellationToken);
+        using var call = _client.Subscribe(metadata, cancellationToken: cancellationToken);
 
         // Send subscription request
         var topicName = "/event/Cloud_News__e"; // Salesforce Platform Event API name
@@ -109,11 +118,32 @@ public class SalesforceInboundSubscriber : BackgroundService
                 consumerEvent.ReplayId.ToBase64());
 
             // Need to parse Avro payload - for test, just simulate in logs without content
+            var schema = await _schemaService.GetSchemaAsync(consumerEvent.Event.SchemaId);
+
+            var eventData = DeserializeAvroPayload(consumerEvent.Event.Payload.ToByteArray(), schema);
+
+            _logger.LogInformation("Event fields:");
+
+            foreach (var field in eventData.Schema.Fields)
+            {
+                var value = eventData[field.Name] ?? "(null)";
+                _logger.LogInformation($"  {field.Name,-20}: {value}");
+            }
+
+            // Publish dapr for internal
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error Processing event");
         }
 
+    }
+
+    private GenericRecord DeserializeAvroPayload(byte[] payload, Schema schema)
+    {
+        using var stream = new MemoryStream(payload);
+        var reader = new GenericDatumReader<GenericRecord>(schema, schema);
+        var decoder = new BinaryDecoder(stream);
+        return reader.Read(null, decoder);
     }
 }

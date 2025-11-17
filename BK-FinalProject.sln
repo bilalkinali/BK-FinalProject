@@ -22,6 +22,9 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ContentModerationService.Application", "ContentModerationService\ContentModerationService.Application\ContentModerationService.Application.csproj", "{867B6E05-DFD0-46D8-8624-8B7A46C20ADC}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Protos", "Protos", "{CA50682A-6C2B-4501-B868-34ABDC633D6D}"
+	ProjectSection(SolutionItems) = preProject
+		SalesforceService\Protos\pubsub_api.proto = SalesforceService\Protos\pubsub_api.proto
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
