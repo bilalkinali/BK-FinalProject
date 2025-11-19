@@ -17,6 +17,7 @@
   <ItemGroup>
     <ProjectReference Include="..\ContentModerationService.Application\ContentModerationService.Application.csproj" />
     <ProjectReference Include="..\ContentModerationService.Domain\ContentModerationService.Domain.csproj" />
+    <ProjectReference Include="..\ContentModerationService.Infrastructure\ContentModerationService.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>
