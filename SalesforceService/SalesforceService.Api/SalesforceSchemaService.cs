@@ -1,7 +1,6 @@
 ﻿using Avro;
 using Eventbus.V1;
 using Grpc.Core;
-using Grpc.Net.Client;
 using SalesforceService.Api.Auth;
 
 namespace SalesforceService.Api;

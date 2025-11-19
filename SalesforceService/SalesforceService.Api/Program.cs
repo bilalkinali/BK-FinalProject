@@ -10,21 +10,25 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddOpenApi();
 builder.Services.AddDaprClient();
 
-// Http Client for Salesforce Auth Service
+// Auth and Schema services
 builder.Services.AddHttpClient<SalesforceAuthService>();
-
-
-// App Services
 builder.Services.AddSingleton<SalesforceAuthService>();
 builder.Services.AddSingleton<SalesforceSchemaService>();
 
 
-// Register gRPC Client for PubSub
-builder.Services.AddSingleton(_ =>
-    GrpcChannel.ForAddress(builder.Configuration["Salesforce:PubSubEndpoint"]!));
-// Then register the PubSubClient using the channel
+// gRPC infrastructure (long-lived)
 builder.Services.AddSingleton(sp =>
-    new PubSub.PubSubClient(sp.GetRequiredService<GrpcChannel>()));
+{
+    var configuration = sp.GetRequiredService<IConfiguration>();
+    return GrpcChannel.ForAddress(configuration["Salesforce:PubSubEndpoint"]!);
+});
+
+// gRPC PubSub client (factory?)
+builder.Services.AddSingleton(sp =>
+{
+    var channel = sp.GetRequiredService<GrpcChannel>();
+    return new PubSub.PubSubClient(channel);
+});
 
 
 // Background subscriber service
