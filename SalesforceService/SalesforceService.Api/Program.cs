@@ -1,3 +1,5 @@
+using Eventbus.V1;
+using Grpc.Net.Client;
 using SalesforceService.Api;
 using SalesforceService.Api.Auth;
 
@@ -6,14 +8,32 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
-
-// Http Client for Salesforce Auth Service
-builder.Services.AddHttpClient<SalesforceAuthService>();
-
 builder.Services.AddDaprClient();
 
+// Auth and Schema services
+builder.Services.AddHttpClient<SalesforceAuthService>();
 builder.Services.AddSingleton<SalesforceAuthService>();
+builder.Services.AddSingleton<SalesforceSchemaService>();
+
+
+// gRPC infrastructure (long-lived)
+builder.Services.AddSingleton(sp =>
+{
+    var configuration = sp.GetRequiredService<IConfiguration>();
+    return GrpcChannel.ForAddress(configuration["Salesforce:PubSubEndpoint"]!);
+});
+
+// gRPC PubSub client (factory?)
+builder.Services.AddSingleton(sp =>
+{
+    var channel = sp.GetRequiredService<GrpcChannel>();
+    return new PubSub.PubSubClient(channel);
+});
+
+
+// Background subscriber service
 builder.Services.AddHostedService<SalesforceInboundSubscriber>();
+
 
 var app = builder.Build();
 
