@@ -2,5 +2,5 @@
 
 public class DetectionResult
 {
-    public List<CategoriesAnalysis>? CategoryAnalysis { get; set; }
+    public List<CategoriesAnalysis>? CategoriesAnalysis { get; set; }
 }

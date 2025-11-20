@@ -54,9 +54,9 @@ public class DecisionService : IDecisionService
     {
         int? severityResult = null;
 
-        if (detectionResult.CategoryAnalysis != null)
+        if (detectionResult.CategoriesAnalysis != null)
         {
-            foreach (var detailResult in detectionResult.CategoryAnalysis)
+            foreach (var detailResult in detectionResult.CategoriesAnalysis)
             {
                 if (detailResult.Category == category.ToString())
                 {

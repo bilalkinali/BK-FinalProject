@@ -5,5 +5,5 @@ namespace ContentModerationService.Infrastructure;
 
 public interface IAzureContentSafetyProxy
 {
-    Task<DetectionResult> DetectAsync(HttpRequestMessage msg, MediaType mediaType)
+    Task<DetectionResult> DetectAsync(HttpRequestMessage msg, MediaType mediaType);
 }
