@@ -11,7 +11,8 @@ public class SalesforceSchemaService : ISalesforceSchemaService
     private readonly IConfiguration _configuration;
     private readonly ISalesforceAuthService _authService;
 
-    private readonly Dictionary<string, Avro.Schema> _cache = new();
+    private readonly Dictionary<string, Avro.Schema> _schemaCache = new();
+    private readonly Dictionary<string, string> _topicToSchema = new();
 
     public SalesforceSchemaService(
         ILogger<SalesforceSchemaService> logger,
@@ -25,9 +26,28 @@ public class SalesforceSchemaService : ISalesforceSchemaService
         _authService = authService;
     }
 
-    async Task<Avro.Schema> ISalesforceSchemaService.GetSchemaAsync(string schemaId)
+    public void RegisterTopicSchema(string topic, string schemaId)
     {
-        if (_cache.TryGetValue(schemaId, out var cached))
+        if (!_topicToSchema.ContainsKey(topic))
+        {
+            _topicToSchema[topic] = schemaId;
+            _logger.LogInformation("Registered schema ID {SchemaId} for topic {Topic}", schemaId, topic);
+        }
+    }
+
+    public async Task<Avro.Schema> GetSchemaByTopicAsync(string topic)
+    {
+        if (!_topicToSchema.TryGetValue(topic, out var schemaId))
+        {
+            throw new KeyNotFoundException($"No schema registered for topic: {topic}");
+        }
+
+        return await GetSchemaByIdAsync(schemaId);
+    }
+
+    public async Task<Avro.Schema> GetSchemaByIdAsync(string schemaId)
+    {
+        if (_schemaCache.TryGetValue(schemaId, out var cached))
             return cached;
 
         _logger.LogInformation("Fetching schema with ID: {SchemaId}", schemaId);
@@ -50,7 +70,7 @@ public class SalesforceSchemaService : ISalesforceSchemaService
 
         _logger.LogInformation("Successfully fetched schema with ID: {SchemaId}", schemaId);
 
-        _cache[schemaId] = schema;
+        _schemaCache[schemaId] = schema;
         return schema;
     }
 }

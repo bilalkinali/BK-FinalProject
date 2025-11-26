@@ -2,5 +2,8 @@
 
 public interface ISalesforceSchemaService
 {
-    Task<Avro.Schema> GetSchemaAsync(string schemaId);
+    void RegisterTopicSchema(string topic, string schemaId);
+    Task<Avro.Schema> GetSchemaByTopicAsync(string topic);
+
+    Task<Avro.Schema> GetSchemaByIdAsync(string schemaId);
 }

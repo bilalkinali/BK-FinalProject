@@ -35,6 +35,7 @@ builder.Services.AddSingleton(sp =>
 
 // Background subscriber service
 builder.Services.AddHostedService<SalesforceInboundSubscriber>(); // Use interface
+builder.Services.AddScoped<SalesforceOutboundPublisher>(); // Use interface
 
 
 var app = builder.Build();

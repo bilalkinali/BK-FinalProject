@@ -1,9 +1,8 @@
 ﻿//using Dapr.Client;
-using Avro.Generic;
-using Avro.IO;
 using Eventbus.V1;
 using Grpc.Core;
 using SalesforceService.Api.Auth;
+using SalesforceService.Api.Helpers;
 using SalesforceService.Api.Schema;
 
 namespace SalesforceService.Api;
@@ -37,21 +36,31 @@ public class SalesforceInboundSubscriber : BackgroundService
     {
         _logger.LogInformation("Salesforce Inbound Subscriber Service is starting...");
 
+        var topics = _configuration.GetSection("Salesforce:Topics").Get<string[]>()!;
+
+        var tasks = topics.Select(topic =>
+            Task.Run(() => StartTopicSubscriptionAsync(topic, cancellationToken), cancellationToken)).ToArray();
+
+        await Task.WhenAll(tasks);
+    }
+
+    private async Task StartTopicSubscriptionAsync(string topicName, CancellationToken cancellationToken)
+    {
         while (!cancellationToken.IsCancellationRequested)
         {
             try
             {
-                await SubscribeToSalesforceAsync(cancellationToken);
+                await SubscribeToTopicAsync(topicName, cancellationToken);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error in Salesforce Subscription. Reconnecting...");
+                _logger.LogError(ex, "Error in Salesforce Subscription for topic {Topic}. Reconnecting...", topicName);
                 await Task.Delay(TimeSpan.FromSeconds(10), cancellationToken);
             }
         }
     }
 
-    private async Task SubscribeToSalesforceAsync(CancellationToken cancellationToken)
+    private async Task SubscribeToTopicAsync(string topicName, CancellationToken cancellationToken)
     {
         // Get Access token and instance URL
         var (accessToken, instanceUrl) = await _authService.GetSessionAsync();
@@ -78,7 +87,7 @@ public class SalesforceInboundSubscriber : BackgroundService
         using var call = _client.Subscribe(metadata, cancellationToken: cancellationToken);
 
         // Send subscription request
-        var topicName = "/event/Cloud_News__e"; // Salesforce Platform Event API name
+        //var topicName = "/event/Cloud_News__e"; // Salesforce Platform Event API name
         var subscribeRequest = new FetchRequest
         {
             TopicName = topicName,
@@ -88,16 +97,19 @@ public class SalesforceInboundSubscriber : BackgroundService
 
         await call.RequestStream.WriteAsync(subscribeRequest, cancellationToken);
 
-        _logger.LogInformation("Subscribed to Salesforce topics {Topic}", topicName);
+        _logger.LogInformation("Subscribing to: {Topic}", topicName);
 
         // Listen for events
         await foreach (var response in call.ResponseStream.ReadAllAsync(cancellationToken))
         {
-            _logger.LogInformation("Received {Count} events from Salesforce", response.Events.Count);
+            if (response.Events.Count > 0)
+            {
+                _logger.LogInformation("Received {Count} events from Salesforce", response.Events.Count); 
+            }
 
             foreach (var evt in response.Events)
             {
-                await ProcessEventAsync(evt);
+                await ProcessEventAsync(topicName, evt);
             }
 
             //// Request more events
@@ -109,17 +121,19 @@ public class SalesforceInboundSubscriber : BackgroundService
         }
     }
 
-    private async Task ProcessEventAsync(ConsumerEvent consumerEvent)
+    private async Task ProcessEventAsync(string topicName, ConsumerEvent consumerEvent)
     {
         try
         {
             _logger.LogInformation("Processing event with ReplayId: {ReplayId}",
                 consumerEvent.ReplayId.ToBase64());
 
-            // Need to parse Avro payload - for test, just simulate in logs without content
-            var schema = await _schemaService.GetSchemaAsync(consumerEvent.Event.SchemaId);
+            _schemaService.RegisterTopicSchema(topicName, consumerEvent.Event.SchemaId);
 
-            var eventData = DeserializeAvroPayload(consumerEvent.Event.Payload.ToByteArray(), schema);
+            // Need to parse AvroConverter payload - for test, just simulate in logs without content
+            var schema = await _schemaService.GetSchemaByIdAsync(consumerEvent.Event.SchemaId);
+
+            var eventData = AvroConverter.DeserializeAvroPayload(consumerEvent.Event.Payload.ToByteArray(), schema);
 
             _logger.LogInformation("Event fields:");
 
@@ -136,13 +150,5 @@ public class SalesforceInboundSubscriber : BackgroundService
             _logger.LogError(ex, "Error Processing event");
         }
 
-    }
-
-    private GenericRecord DeserializeAvroPayload(byte[] payload, Avro.Schema schema)
-    {
-        using var stream = new MemoryStream(payload);
-        var reader = new GenericDatumReader<GenericRecord>(schema, schema);
-        var decoder = new BinaryDecoder(stream);
-        return reader.Read(null, decoder);
     }
 }
