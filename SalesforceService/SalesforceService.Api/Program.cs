@@ -2,6 +2,7 @@ using Eventbus.V1;
 using Grpc.Net.Client;
 using SalesforceService.Api;
 using SalesforceService.Api.Auth;
+using SalesforceService.Api.Schema;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,9 +12,10 @@ builder.Services.AddOpenApi();
 builder.Services.AddDaprClient();
 
 // Auth and Schema services
-builder.Services.AddHttpClient<SalesforceAuthService>();
-builder.Services.AddSingleton<SalesforceAuthService>();
-builder.Services.AddSingleton<SalesforceSchemaService>();
+builder.Services.AddSingleton<SalesforceTokenCache>();
+builder.Services.AddHttpClient<ISalesforceAuthService, SalesforceAuthService>();
+//builder.Services.AddSingleton<ISalesforceAuthService, SalesforceAuthService>();
+builder.Services.AddSingleton<ISalesforceSchemaService, SalesforceSchemaService>();
 
 
 // gRPC infrastructure (long-lived)
@@ -32,7 +34,7 @@ builder.Services.AddSingleton(sp =>
 
 
 // Background subscriber service
-builder.Services.AddHostedService<SalesforceInboundSubscriber>();
+builder.Services.AddHostedService<SalesforceInboundSubscriber>(); // Use interface
 
 
 var app = builder.Build();

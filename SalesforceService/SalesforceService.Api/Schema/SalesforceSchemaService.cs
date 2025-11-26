@@ -1,24 +1,23 @@
-﻿using Avro;
-using Eventbus.V1;
+﻿using Eventbus.V1;
 using Grpc.Core;
 using SalesforceService.Api.Auth;
 
-namespace SalesforceService.Api;
+namespace SalesforceService.Api.Schema;
 
-public class SalesforceSchemaService
+public class SalesforceSchemaService : ISalesforceSchemaService
 {
     private readonly ILogger<SalesforceSchemaService> _logger;
     private readonly PubSub.PubSubClient _client;
     private readonly IConfiguration _configuration;
-    private readonly SalesforceAuthService _authService;
+    private readonly ISalesforceAuthService _authService;
 
-    private readonly Dictionary<string, Schema> _cache = new();
+    private readonly Dictionary<string, Avro.Schema> _cache = new();
 
     public SalesforceSchemaService(
         ILogger<SalesforceSchemaService> logger,
         PubSub.PubSubClient client,
         IConfiguration configuration,
-        SalesforceAuthService authService)
+        ISalesforceAuthService authService)
     {
         _logger = logger;
         _client = client;
@@ -26,7 +25,7 @@ public class SalesforceSchemaService
         _authService = authService;
     }
 
-    public async Task<Schema> GetSchemaAsync(string schemaId)
+    async Task<Avro.Schema> ISalesforceSchemaService.GetSchemaAsync(string schemaId)
     {
         if (_cache.TryGetValue(schemaId, out var cached))
             return cached;
@@ -35,7 +34,7 @@ public class SalesforceSchemaService
 
         var (accessToken, instanceUrl) = await _authService.GetSessionAsync();
 
-        var tenantId = _configuration["Salesforce:TenantId"] ?? null;
+        var tenantId = _configuration["Salesforce:TenantId"]!;
 
         var metadata = new Metadata
         {
@@ -47,7 +46,7 @@ public class SalesforceSchemaService
         var schemaRequest = new SchemaRequest { SchemaId = schemaId };
         var schemaResponse = await _client.GetSchemaAsync(schemaRequest, metadata);
 
-        var schema = Schema.Parse(schemaResponse.SchemaJson);
+        var schema = Avro.Schema.Parse(schemaResponse.SchemaJson);
 
         _logger.LogInformation("Successfully fetched schema with ID: {SchemaId}", schemaId);
 

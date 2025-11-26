@@ -1,11 +1,10 @@
 ﻿//using Dapr.Client;
-using Avro;
 using Avro.Generic;
 using Avro.IO;
 using Eventbus.V1;
 using Grpc.Core;
-using Grpc.Net.Client;
 using SalesforceService.Api.Auth;
+using SalesforceService.Api.Schema;
 
 namespace SalesforceService.Api;
 
@@ -15,16 +14,16 @@ public class SalesforceInboundSubscriber : BackgroundService
     private readonly PubSub.PubSubClient _client;
     //private readonly DaprClient _daprClient;
     private readonly IConfiguration _configuration;
-    private readonly SalesforceAuthService _authService;
-    private readonly SalesforceSchemaService _schemaService;
+    private readonly ISalesforceAuthService _authService;
+    private readonly ISalesforceSchemaService _schemaService;
 
     public SalesforceInboundSubscriber(
         ILogger<SalesforceInboundSubscriber> logger,
         //DaprClient daprClient,
         PubSub.PubSubClient client,
         IConfiguration configuration,
-        SalesforceAuthService authService,
-        SalesforceSchemaService schemaService)
+        ISalesforceAuthService authService,
+        ISalesforceSchemaService schemaService)
     {
         _logger = logger;
         _client = client;
@@ -65,7 +64,7 @@ public class SalesforceInboundSubscriber : BackgroundService
         //var client = new PubSub.PubSubClient(channel);
 
         // Tenant Id for multi-tenant support - for testing, hardcoded value
-        var tenantId = _configuration["Salesforce:TenantId"] ?? null;
+        var tenantId = _configuration["Salesforce:TenantId"]!;
 
         // Simplified metadata with session ID and instance URL for testing (Grpc.Core)
         var metadata = new Metadata
@@ -139,7 +138,7 @@ public class SalesforceInboundSubscriber : BackgroundService
 
     }
 
-    private GenericRecord DeserializeAvroPayload(byte[] payload, Schema schema)
+    private GenericRecord DeserializeAvroPayload(byte[] payload, Avro.Schema schema)
     {
         using var stream = new MemoryStream(payload);
         var reader = new GenericDatumReader<GenericRecord>(schema, schema);

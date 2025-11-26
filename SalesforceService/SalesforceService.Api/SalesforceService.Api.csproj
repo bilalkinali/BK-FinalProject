@@ -24,7 +24,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Auth\" />
     <Protobuf Include="..\Protos\pubsub_api.proto" GrpcServices="Client" />
   </ItemGroup>
 
