@@ -30,11 +30,25 @@ public class SalesforceInboundSubscriber : BackgroundService
         _configuration = configuration;
         _authService = authService;
         _schemaService = schemaService;
-    }    
+    }
+
+    private string _accessToken = string.Empty;
+    private string _instanceUrl = string.Empty;
 
     protected override async Task ExecuteAsync(CancellationToken cancellationToken)
     {
         _logger.LogInformation("Salesforce Inbound Subscriber Service is starting...");
+
+        try
+        {
+            // Get Access token and instance URL
+            (_accessToken, _instanceUrl) = await _authService.GetSessionAsync();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to log in to Salesforce. Stopping service.");
+            return;
+        }
 
         var topics = _configuration.GetSection("Salesforce:Topics").Get<string[]>()!;
 
@@ -62,8 +76,8 @@ public class SalesforceInboundSubscriber : BackgroundService
 
     private async Task SubscribeToTopicAsync(string topicName, CancellationToken cancellationToken)
     {
-        // Get Access token and instance URL
-        var (accessToken, instanceUrl) = await _authService.GetSessionAsync();
+        //// Get Access token and instance URL
+        //var (accessToken, instanceUrl) = await _authService.GetSessionAsync();
 
         //// Create gRPC channel
         //var channel = GrpcChannel.ForAddress(_configuration["Salesforce:PubSubEndpoint"]!);
@@ -78,8 +92,8 @@ public class SalesforceInboundSubscriber : BackgroundService
         // Simplified metadata with session ID and instance URL for testing (Grpc.Core)
         var metadata = new Metadata
         {
-            { "accesstoken", accessToken },
-            { "instanceurl", instanceUrl },
+            { "accesstoken", _accessToken },
+            { "instanceurl", _instanceUrl },
             { "tenantid", tenantId }
         };
 

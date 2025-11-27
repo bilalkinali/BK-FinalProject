@@ -28,15 +28,15 @@ public class SalesforceAuthService : ISalesforceAuthService
             return (_cache.AccessToken, _cache.InstanceUrl);
         }
 
-        var loginUrl = _configuration["Salesforce:LoginUrl"];
-        var clientId = _configuration["Salesforce:ClientId"];
-        var clientSecret = _configuration["Salesforce:ClientSecret"];
+        var loginUrl = _configuration["Salesforce:LoginUrl"]!;
+        var clientId = _configuration["Salesforce:ClientId"]!;
+        var clientSecret = _configuration["Salesforce:ClientSecret"]!;
 
         var content = new FormUrlEncodedContent(new Dictionary<string, string>
         {
             { "grant_type", "client_credentials" },
-            { "client_id", clientId! },
-            { "client_secret", clientSecret! }
+            { "client_id", clientId },
+            { "client_secret", clientSecret }
         });
 
         _logger.LogInformation("Sending OAuth login request to Salesforce...");
