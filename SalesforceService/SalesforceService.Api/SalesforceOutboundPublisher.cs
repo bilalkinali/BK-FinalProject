@@ -1,6 +1,4 @@
-﻿using Avro.Generic;
-using Avro.IO;
-using Eventbus.V1;
+﻿using Eventbus.V1;
 using Grpc.Core;
 using SalesforceService.Api.Auth;
 using SalesforceService.Api.Helpers;
@@ -31,22 +29,49 @@ public class SalesforceOutboundPublisher
         _schemaService = schemaService;
     }
 
-    public async Task PublishAsync(string topicName, string payload)
+    public async Task PublishAsync(string topicName, Dictionary<string, Object?> payload)
     {
         var (accessToken, instanceUrl) = await _authService.GetSessionAsync();
-        var tenantId = _config["Salesforce:TenantId"]!;
 
         var metadata = new Metadata
         {
             { "accesstoken", accessToken },
             { "instanceurl", instanceUrl },
-            { "tenantid", tenantId }
+            { "tenantid", _config["Salesforce:TenantId"]! }
         };
 
-        // Fetch schema for outbount event
-        var schema = await _schemaService.GetSchemaByTopicAsync(topicName);
+        // Fetch schema with Id for outbount event
+        var (schemaId, schema) = await _schemaService.GetSchemaWithIdByTopicAsync(topicName);
 
         // Convert payload to Avro binary
-        var avroBytes = AvroConverter.SerializeJsonToAvro(payload, schema);
+        var avroBytes = AvroConverter.SerializeToAvroBytes(payload, schema);
+
+        // Build ProducerEvent
+        var producerEvent = new ProducerEvent
+        {
+            SchemaId = schemaId,
+            Payload = Google.Protobuf.ByteString.CopyFrom(avroBytes)
+        };
+
+        // Build request
+        var request = new PublishRequest
+        {
+            TopicName = topicName
+        };
+
+        request.Events.Add(producerEvent);
+
+        // Publish event
+        var response = await _client.PublishAsync(request, metadata);
+
+        _logger.LogInformation(
+            "Published event to topic {Topic}. CorrelationKey={CorrelationKey}, Error={Error}, ReplayId={ReplayId}",
+            topicName,
+            response.Results[0].CorrelationKey,
+            response.Results[0].Error,
+            response.Results[0].ReplayId.ToBase64()
+        );
+
+
     }
 }

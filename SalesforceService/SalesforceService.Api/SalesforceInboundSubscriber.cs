@@ -12,7 +12,7 @@ public class SalesforceInboundSubscriber : BackgroundService
     private readonly ILogger<SalesforceInboundSubscriber> _logger;
     private readonly PubSub.PubSubClient _client;
     //private readonly DaprClient _daprClient;
-    private readonly IConfiguration _configuration;
+    private readonly IConfiguration _config;
     private readonly ISalesforceAuthService _authService;
     private readonly ISalesforceSchemaService _schemaService;
 
@@ -20,14 +20,14 @@ public class SalesforceInboundSubscriber : BackgroundService
         ILogger<SalesforceInboundSubscriber> logger,
         //DaprClient daprClient,
         PubSub.PubSubClient client,
-        IConfiguration configuration,
+        IConfiguration config,
         ISalesforceAuthService authService,
         ISalesforceSchemaService schemaService)
     {
         _logger = logger;
         _client = client;
         //_daprClient = daprClient;
-        _configuration = configuration;
+        _config = config;
         _authService = authService;
         _schemaService = schemaService;
     }
@@ -50,7 +50,7 @@ public class SalesforceInboundSubscriber : BackgroundService
             return;
         }
 
-        var topics = _configuration.GetSection("Salesforce:Topics").Get<string[]>()!;
+        var topics = _config.GetSection("Salesforce:IndboundTopics").Get<string[]>()!;
 
         var tasks = topics.Select(topic =>
             Task.Run(() => StartTopicSubscriptionAsync(topic, cancellationToken), cancellationToken)).ToArray();
@@ -80,14 +80,14 @@ public class SalesforceInboundSubscriber : BackgroundService
         //var (accessToken, instanceUrl) = await _authService.GetSessionAsync();
 
         //// Create gRPC channel
-        //var channel = GrpcChannel.ForAddress(_configuration["Salesforce:PubSubEndpoint"]!);
+        //var channel = GrpcChannel.ForAddress(_config["Salesforce:PubSubEndpoint"]!);
 
         ///* Imported Salesforce.EventBus.V1 after building project since
         //adding ItemGroup <Protobuf Include="..\Protos\pubsub_api.proto" GrpcServices="Client" /> in .csproj */
         //var client = new PubSub.PubSubClient(channel);
 
         // Tenant Id for multi-tenant support - for testing, hardcoded value
-        var tenantId = _configuration["Salesforce:TenantId"]!;
+        var tenantId = _config["Salesforce:TenantId"]!;
 
         // Simplified metadata with session ID and instance URL for testing (Grpc.Core)
         var metadata = new Metadata
