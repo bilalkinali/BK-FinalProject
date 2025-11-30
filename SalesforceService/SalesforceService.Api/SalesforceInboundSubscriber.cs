@@ -1,11 +1,9 @@
 ﻿//using Dapr.Client;
-using Avro;
-using Avro.Generic;
-using Avro.IO;
 using Eventbus.V1;
 using Grpc.Core;
-using Grpc.Net.Client;
 using SalesforceService.Api.Auth;
+using SalesforceService.Api.Helpers;
+using SalesforceService.Api.Schema;
 
 namespace SalesforceService.Api;
 
@@ -14,64 +12,88 @@ public class SalesforceInboundSubscriber : BackgroundService
     private readonly ILogger<SalesforceInboundSubscriber> _logger;
     private readonly PubSub.PubSubClient _client;
     //private readonly DaprClient _daprClient;
-    private readonly IConfiguration _configuration;
-    private readonly SalesforceAuthService _authService;
-    private readonly SalesforceSchemaService _schemaService;
+    private readonly IConfiguration _config;
+    private readonly ISalesforceAuthService _authService;
+    private readonly ISalesforceSchemaService _schemaService;
 
     public SalesforceInboundSubscriber(
         ILogger<SalesforceInboundSubscriber> logger,
         //DaprClient daprClient,
         PubSub.PubSubClient client,
-        IConfiguration configuration,
-        SalesforceAuthService authService,
-        SalesforceSchemaService schemaService)
+        IConfiguration config,
+        ISalesforceAuthService authService,
+        ISalesforceSchemaService schemaService)
     {
         _logger = logger;
         _client = client;
         //_daprClient = daprClient;
-        _configuration = configuration;
+        _config = config;
         _authService = authService;
         _schemaService = schemaService;
-    }    
+    }
+
+    private string _accessToken = string.Empty;
+    private string _instanceUrl = string.Empty;
 
     protected override async Task ExecuteAsync(CancellationToken cancellationToken)
     {
         _logger.LogInformation("Salesforce Inbound Subscriber Service is starting...");
 
+        try
+        {
+            // Get Access token and instance URL
+            (_accessToken, _instanceUrl) = await _authService.GetSessionAsync();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to log in to Salesforce. Stopping service.");
+            return;
+        }
+
+        var topics = _config.GetSection("Salesforce:IndboundTopics").Get<string[]>()!;
+
+        var tasks = topics.Select(topic =>
+            Task.Run(() => StartTopicSubscriptionAsync(topic, cancellationToken), cancellationToken)).ToArray();
+
+        await Task.WhenAll(tasks);
+    }
+
+    private async Task StartTopicSubscriptionAsync(string topicName, CancellationToken cancellationToken)
+    {
         while (!cancellationToken.IsCancellationRequested)
         {
             try
             {
-                await SubscribeToSalesforceAsync(cancellationToken);
+                await SubscribeToTopicAsync(topicName, cancellationToken);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error in Salesforce Subscription. Reconnecting...");
+                _logger.LogError(ex, "Error in Salesforce Subscription for topic {Topic}. Reconnecting...", topicName);
                 await Task.Delay(TimeSpan.FromSeconds(10), cancellationToken);
             }
         }
     }
 
-    private async Task SubscribeToSalesforceAsync(CancellationToken cancellationToken)
+    private async Task SubscribeToTopicAsync(string topicName, CancellationToken cancellationToken)
     {
-        // Get Access token and instance URL
-        var (accessToken, instanceUrl) = await _authService.GetSessionAsync();
+        //// Get Access token and instance URL
+        //var (accessToken, instanceUrl) = await _authService.GetSessionAsync();
 
         //// Create gRPC channel
-        //var channel = GrpcChannel.ForAddress(_configuration["Salesforce:PubSubEndpoint"]!);
+        //var channel = GrpcChannel.ForAddress(_config["Salesforce:PubSubEndpoint"]!);
 
         ///* Imported Salesforce.EventBus.V1 after building project since
         //adding ItemGroup <Protobuf Include="..\Protos\pubsub_api.proto" GrpcServices="Client" /> in .csproj */
         //var client = new PubSub.PubSubClient(channel);
 
         // Tenant Id for multi-tenant support - for testing, hardcoded value
-        var tenantId = _configuration["Salesforce:TenantId"] ?? null;
+        var tenantId = _config["Salesforce:TenantId"]!;
 
         // Simplified metadata with session ID and instance URL for testing (Grpc.Core)
         var metadata = new Metadata
         {
-            { "accesstoken", accessToken },
-            { "instanceurl", instanceUrl },
+            { "accesstoken", _accessToken },
+            { "instanceurl", _instanceUrl },
             { "tenantid", tenantId }
         };
 
@@ -79,7 +101,7 @@ public class SalesforceInboundSubscriber : BackgroundService
         using var call = _client.Subscribe(metadata, cancellationToken: cancellationToken);
 
         // Send subscription request
-        var topicName = "/event/Cloud_News__e"; // Salesforce Platform Event API name
+        //var topicName = "/event/Cloud_News__e"; // Salesforce Platform Event API name
         var subscribeRequest = new FetchRequest
         {
             TopicName = topicName,
@@ -89,16 +111,19 @@ public class SalesforceInboundSubscriber : BackgroundService
 
         await call.RequestStream.WriteAsync(subscribeRequest, cancellationToken);
 
-        _logger.LogInformation("Subscribed to Salesforce topics {Topic}", topicName);
+        _logger.LogInformation("Subscribing to: {Topic}", topicName);
 
         // Listen for events
         await foreach (var response in call.ResponseStream.ReadAllAsync(cancellationToken))
         {
-            _logger.LogInformation("Received {Count} events from Salesforce", response.Events.Count);
+            if (response.Events.Count > 0)
+            {
+                _logger.LogInformation("Received {Count} events from Salesforce", response.Events.Count); 
+            }
 
             foreach (var evt in response.Events)
             {
-                await ProcessEventAsync(evt);
+                await ProcessEventAsync(topicName, evt);
             }
 
             //// Request more events
@@ -110,17 +135,19 @@ public class SalesforceInboundSubscriber : BackgroundService
         }
     }
 
-    private async Task ProcessEventAsync(ConsumerEvent consumerEvent)
+    private async Task ProcessEventAsync(string topicName, ConsumerEvent consumerEvent)
     {
         try
         {
             _logger.LogInformation("Processing event with ReplayId: {ReplayId}",
                 consumerEvent.ReplayId.ToBase64());
 
-            // Need to parse Avro payload - for test, just simulate in logs without content
-            var schema = await _schemaService.GetSchemaAsync(consumerEvent.Event.SchemaId);
+            _schemaService.RegisterTopicSchema(topicName, consumerEvent.Event.SchemaId);
 
-            var eventData = DeserializeAvroPayload(consumerEvent.Event.Payload.ToByteArray(), schema);
+            // Need to parse AvroConverter payload - for test, just simulate in logs without content
+            var schema = await _schemaService.GetSchemaByIdAsync(consumerEvent.Event.SchemaId);
+
+            var eventData = AvroConverter.DeserializeAvroPayload(consumerEvent.Event.Payload.ToByteArray(), schema);
 
             _logger.LogInformation("Event fields:");
 
@@ -137,13 +164,5 @@ public class SalesforceInboundSubscriber : BackgroundService
             _logger.LogError(ex, "Error Processing event");
         }
 
-    }
-
-    private GenericRecord DeserializeAvroPayload(byte[] payload, Schema schema)
-    {
-        using var stream = new MemoryStream(payload);
-        var reader = new GenericDatumReader<GenericRecord>(schema, schema);
-        var decoder = new BinaryDecoder(stream);
-        return reader.Read(null, decoder);
     }
 }
