@@ -157,6 +157,16 @@ public class SalesforceInboundSubscriber : BackgroundService
                 _logger.LogInformation($"  {field.Name,-20}: {value}");
             }
 
+            /* Test result:
+
+            CreatedDate: 1764894281124
+            CreatedById: 005dL00001TQ0MbQAL
+            Case_Id__c: 500dL00002VS9blQAD
+            Case_Description__c: test description
+
+            */
+
+            // Save to database with more data like eventId as correlation key
             // Publish dapr for internal
         }
         catch (Exception ex)

@@ -71,10 +71,11 @@ app.MapGet("/test", () => "Hello World - From Salesforce Service");
 app.MapPost("/salesforce/test-publish", async (
     SalesforceOutboundPublisher publisher) =>
 {
+    // Testing - publish a test event to Salesforce
     var payload = new Dictionary<string, object?>
     {
         ["Case_Id__c"] = "500dL00002Ppt4fQAB",
-        ["Moderation_Result__c"] = "Approved",
+        ["Moderation_Result__c"] = "Accept",
 
         ["CreatedDate"] = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
         ["CreatedById"] = "005dL00001TQ0MbQAL",
