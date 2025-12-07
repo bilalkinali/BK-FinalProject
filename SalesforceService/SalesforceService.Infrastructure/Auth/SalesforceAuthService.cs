@@ -1,6 +1,8 @@
 ﻿using System.Text.Json;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
-namespace SalesforceService.Api.Auth;
+namespace SalesforceService.Infrastructure.Auth;
 
 public class SalesforceAuthService : ISalesforceAuthService
 {

@@ -1,8 +1,10 @@
 ﻿using Eventbus.V1;
 using Grpc.Core;
-using SalesforceService.Api.Auth;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using SalesforceService.Infrastructure.Auth;
 
-namespace SalesforceService.Api.Schema;
+namespace SalesforceService.Infrastructure.Schema;
 
 public class SalesforceSchemaService : ISalesforceSchemaService
 {

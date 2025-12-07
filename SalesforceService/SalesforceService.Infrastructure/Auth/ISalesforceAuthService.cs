@@ -1,4 +1,4 @@
-﻿namespace SalesforceService.Api.Auth;
+﻿namespace SalesforceService.Infrastructure.Auth;
 
 public interface ISalesforceAuthService
 {

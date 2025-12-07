@@ -1,35 +1,46 @@
 ﻿//using Dapr.Client;
+
 using Eventbus.V1;
 using Grpc.Core;
-using SalesforceService.Api.Auth;
-using SalesforceService.Api.Helpers;
-using SalesforceService.Api.Schema;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using SalesforceService.Application.Commands;
+using SalesforceService.Infrastructure.Auth;
+using SalesforceService.Infrastructure.Helpers;
+using SalesforceService.Infrastructure.Schema;
 
-namespace SalesforceService.Api;
+namespace SalesforceService.Infrastructure.Messaging.Inbound;
 
-public class SalesforceInboundSubscriber : BackgroundService
+public class SalesforceInboundSubscriber : BackgroundService, ISalesforceInboundSubscriber
 {
+    private readonly IServiceScopeFactory _scopeFactory;
     private readonly ILogger<SalesforceInboundSubscriber> _logger;
+
     private readonly PubSub.PubSubClient _client;
+
     //private readonly DaprClient _daprClient;
     private readonly IConfiguration _config;
-    private readonly ISalesforceAuthService _authService;
     private readonly ISalesforceSchemaService _schemaService;
+    private readonly ISalesforceAuthService _authService;
 
     public SalesforceInboundSubscriber(
+        IServiceScopeFactory scopeFactory,
         ILogger<SalesforceInboundSubscriber> logger,
         //DaprClient daprClient,
         PubSub.PubSubClient client,
         IConfiguration config,
-        ISalesforceAuthService authService,
-        ISalesforceSchemaService schemaService)
+        ISalesforceSchemaService schemaService,
+        ISalesforceAuthService authService)
     {
+        _scopeFactory = scopeFactory;
         _logger = logger;
         _client = client;
         //_daprClient = daprClient;
         _config = config;
-        _authService = authService;
         _schemaService = schemaService;
+        _authService = authService;
     }
 
     private string _accessToken = string.Empty;
@@ -58,6 +69,7 @@ public class SalesforceInboundSubscriber : BackgroundService
         await Task.WhenAll(tasks);
     }
 
+
     private async Task StartTopicSubscriptionAsync(string topicName, CancellationToken cancellationToken)
     {
         while (!cancellationToken.IsCancellationRequested)
@@ -76,16 +88,6 @@ public class SalesforceInboundSubscriber : BackgroundService
 
     private async Task SubscribeToTopicAsync(string topicName, CancellationToken cancellationToken)
     {
-        //// Get Access token and instance URL
-        //var (accessToken, instanceUrl) = await _authService.GetSessionAsync();
-
-        //// Create gRPC channel
-        //var channel = GrpcChannel.ForAddress(_config["Salesforce:PubSubEndpoint"]!);
-
-        ///* Imported Salesforce.EventBus.V1 after building project since
-        //adding ItemGroup <Protobuf Include="..\Protos\pubsub_api.proto" GrpcServices="Client" /> in .csproj */
-        //var client = new PubSub.PubSubClient(channel);
-
         // Tenant Id for multi-tenant support - for testing, hardcoded value
         var tenantId = _config["Salesforce:TenantId"]!;
 
@@ -118,20 +120,13 @@ public class SalesforceInboundSubscriber : BackgroundService
         {
             if (response.Events.Count > 0)
             {
-                _logger.LogInformation("Received {Count} events from Salesforce", response.Events.Count); 
+                _logger.LogInformation("Received {Count} events from Salesforce", response.Events.Count);
             }
 
             foreach (var evt in response.Events)
             {
                 await ProcessEventAsync(topicName, evt);
             }
-
-            //// Request more events
-            //await call.RequestStream.WriteAsync(new FetchRequest
-            //{
-            //    TopicName = topicName,
-            //    NumRequested = 10
-            //}, cancellationToken);
         }
     }
 
@@ -139,30 +134,56 @@ public class SalesforceInboundSubscriber : BackgroundService
     {
         try
         {
-            _logger.LogInformation("Processing event with ReplayId: {ReplayId}",
-                consumerEvent.ReplayId.ToBase64());
+            var replayId = consumerEvent.ReplayId.ToBase64();
+            var schemaId = consumerEvent.Event.SchemaId;
+            var payload = consumerEvent.Event.Payload.ToByteArray();
 
-            _schemaService.RegisterTopicSchema(topicName, consumerEvent.Event.SchemaId);
+            _logger.LogInformation("Processing event with ReplayId: {ReplayId}", replayId);
 
-            // Need to parse AvroConverter payload - for test, just simulate in logs without content
-            var schema = await _schemaService.GetSchemaByIdAsync(consumerEvent.Event.SchemaId);
+            // Register schema
+            _schemaService.RegisterTopicSchema(topicName, schemaId);
 
-            var eventData = AvroConverter.DeserializeAvroPayload(consumerEvent.Event.Payload.ToByteArray(), schema);
+            // Get schema to deserialize payload
+            var schema = await _schemaService.GetSchemaByIdAsync(schemaId);
+            var eventData = AvroConverter.DeserializeAvroPayload(payload, schema);
+            var fields = AvroConverter.ToDictionary(eventData);
 
+            // Test: log event fields
             _logger.LogInformation("Event fields:");
-
-            foreach (var field in eventData.Schema.Fields)
+            foreach (var pair in fields)
             {
-                var value = eventData[field.Name] ?? "(null)";
-                _logger.LogInformation($"  {field.Name,-20}: {value}");
+                _logger.LogInformation($"  {pair.Key,-20}: {pair.Value}");
             }
+
+            using var scope = _scopeFactory.CreateScope();
+            var eventCommand = scope.ServiceProvider.GetRequiredService<IEventCommand>();
+
+            // Application command handler
+            await eventCommand.CreateInboundEventAsync(topicName, replayId, fields);
 
             /* Test result:
 
             CreatedDate: 1764894281124
             CreatedById: 005dL00001TQ0MbQAL
-            Case_Id__c: 500dL00002VS9blQAD
-            Case_Description__c: test description
+            RecordId__c: 500dL00002VS9blQAD
+            Content__c: test description
+
+
+            // inside ProcessAsync, after deserializing or extracting summary/hash:
+            var inbound = new InboundEvent
+            {
+               Id = Guid.NewGuid(),
+               SourceEventId = consumerEvent.ReplayId.ToBase64(),
+               Topic = topicName,
+               SchemaId = consumerEvent.Event.SchemaId,
+               TenantId = tenantIdFromConfigOrMetadata,
+               CorrelationId = correlationIdIfAny,
+               PayloadSummary = JsonDocument.Parse("{\"refId\":\"500d...\"}"), // small canonical keys only
+               PayloadHash = ComputeSha256Base64(consumerEvent.Event.Payload.ToByteArray()),
+               Status = "received",
+               IngestedAt = DateTimeOffset.UtcNow
+            };
+
 
             */
 
@@ -174,5 +195,6 @@ public class SalesforceInboundSubscriber : BackgroundService
             _logger.LogError(ex, "Error Processing event");
         }
 
+        //}
     }
 }

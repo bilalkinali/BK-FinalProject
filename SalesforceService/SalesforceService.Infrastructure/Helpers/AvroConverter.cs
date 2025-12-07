@@ -2,7 +2,7 @@
 using Avro.Generic;
 using Avro.IO;
 
-namespace SalesforceService.Api.Helpers;
+namespace SalesforceService.Infrastructure.Helpers;
 
 public static class AvroConverter
 {
@@ -43,6 +43,18 @@ public static class AvroConverter
         using var stream = new MemoryStream(payload);
         var reader = new GenericDatumReader<GenericRecord>(schema, schema);
         var decoder = new BinaryDecoder(stream);
-        return reader.Read(null, decoder);
+        var genericRecord = reader.Read(null!, decoder);
+
+        return genericRecord;
+    }
+
+    public static Dictionary<string, object?> ToDictionary(GenericRecord record)
+    {
+        var dict = new Dictionary<string, object?>();
+        foreach (var field in record.Schema.Fields)
+        {
+            dict[field.Name] = record[field.Name];
+        }
+        return dict;
     }
 }
