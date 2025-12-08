@@ -12,6 +12,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddOpenApi();
 builder.Services.AddDaprClient();
 
+// Load Salesforce settings from YAML
+builder.Configuration.AddYamlFile("config/salesforce-settings.yaml", optional: false, reloadOnChange: true);
+
 builder.Services.AddInfrastructureServices(builder.Configuration);
 builder.Services.AddApplicationServices();
 
