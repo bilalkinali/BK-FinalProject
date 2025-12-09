@@ -1,8 +1,9 @@
-using Eventbus.V1;
-using Grpc.Net.Client;
-using SalesforceService.Api;
-using SalesforceService.Api.Auth;
-using SalesforceService.Api.Schema;
+using SalesforceService.Application;
+using SalesforceService.Infrastructure;
+using SalesforceService.Infrastructure.Messaging.Inbound;
+using SalesforceService.Infrastructure.Messaging.Outbound;
+
+//using SalesforceService.Api.Schema;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,30 +12,20 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddOpenApi();
 builder.Services.AddDaprClient();
 
-// Auth and Schema services
-builder.Services.AddSingleton<SalesforceTokenCache>();
-builder.Services.AddHttpClient<ISalesforceAuthService, SalesforceAuthService>();
-//builder.Services.AddSingleton<ISalesforceAuthService, SalesforceAuthService>();
-builder.Services.AddSingleton<ISalesforceSchemaService, SalesforceSchemaService>();
+var path = Path.Combine(builder.Environment.ContentRootPath,
+    "..",
+    "SalesforceService.Infrastructure",
+    "config",
+    "topic-definitions.yaml");
 
+// Load Salesforce settings from YAML
+builder.Configuration.AddYamlFile(path, optional: false);
 
-// gRPC infrastructure (long-lived)
-builder.Services.AddSingleton(sp =>
-{
-    var configuration = sp.GetRequiredService<IConfiguration>();
-    return GrpcChannel.ForAddress(configuration["Salesforce:PubSubEndpoint"]!);
-});
-
-// gRPC PubSub client (factory?)
-builder.Services.AddSingleton(sp =>
-{
-    var channel = sp.GetRequiredService<GrpcChannel>();
-    return new PubSub.PubSubClient(channel);
-});
-
+builder.Services.AddInfrastructureServices(builder.Configuration);
+builder.Services.AddApplicationServices();
 
 // Background subscriber service
-builder.Services.AddHostedService<SalesforceInboundSubscriber>(); // Use interface
+builder.Services.AddHostedService<SalesforceInboundSubscriber>();
 builder.Services.AddScoped<SalesforceOutboundPublisher>(); // Use interface
 
 
@@ -43,16 +34,16 @@ var app = builder.Build();
 
 //// TESTING - Preload schemas for outbound topics
 
-var schemaService = app.Services.GetRequiredService<ISalesforceSchemaService>();
+//var schemaService = app.Services.GetRequiredService<ISalesforceSchemaService>();
 
-var outboundTopics = builder.Configuration
-    .GetSection("Salesforce:OutboundTopics")
-    .Get<string[]>()!;
+//var outboundTopics = builder.Configuration
+//    .GetSection("Salesforce:OutboundTopics")
+//    .Get<string[]>()!;
 
-foreach (var topic in outboundTopics)
-{
-    await schemaService.PreloadSchemaIdForTopicAsync(topic);
-}
+//foreach (var topic in outboundTopics)
+//{
+//    await schemaService.PreloadSchemaIdForTopicAsync(topic);
+//}
 
 //// END TESTING
 
@@ -71,10 +62,11 @@ app.MapGet("/test", () => "Hello World - From Salesforce Service");
 app.MapPost("/salesforce/test-publish", async (
     SalesforceOutboundPublisher publisher) =>
 {
+    // Testing - publish a test event to Salesforce
     var payload = new Dictionary<string, object?>
     {
         ["Case_Id__c"] = "500dL00002Ppt4fQAB",
-        ["Moderation_Result__c"] = "Approved",
+        ["Moderation_Result__c"] = "Accept",
 
         ["CreatedDate"] = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
         ["CreatedById"] = "005dL00001TQ0MbQAL",

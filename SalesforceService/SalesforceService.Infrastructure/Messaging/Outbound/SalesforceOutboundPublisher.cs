@@ -1,10 +1,12 @@
 ﻿using Eventbus.V1;
 using Grpc.Core;
-using SalesforceService.Api.Auth;
-using SalesforceService.Api.Helpers;
-using SalesforceService.Api.Schema;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using SalesforceService.Infrastructure.Auth;
+using SalesforceService.Infrastructure.Helpers;
+using SalesforceService.Infrastructure.Schema;
 
-namespace SalesforceService.Api;
+namespace SalesforceService.Infrastructure.Messaging.Outbound;
 
 public class SalesforceOutboundPublisher
 {

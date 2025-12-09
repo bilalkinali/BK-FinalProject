@@ -7,9 +7,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Gateway", "Gateway", "{D685
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gateway.Api", "Gateway\Gateway.Api\Gateway.Api.csproj", "{F5AB6871-32FE-420B-8DC8-86FD1F57CBA3}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SalesforceService", "SalesforceService", "{90B1B96F-9BA5-4DB5-8D78-4661D33FA9BD}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SalesforceService.Api", "SalesforceService\SalesforceService.Api\SalesforceService.Api.csproj", "{C8F10C03-D33C-470D-ADA3-9A23A0BB425E}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SalesforceService", "SalesforceService", "{90B1B96F-9BA5-4DB5-8D78-4661D33FA9BD}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SalesforceService.Application", "SalesforceService\SalesforceService.Application\SalesforceService.Application.csproj", "{FBBEA1CA-2E9C-485D-BBC4-0C12A30A23FE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SalesforceService.Infrastructure", "SalesforceService\SalesforceService.Infrastructure\SalesforceService.Infrastructure.csproj", "{3C496714-37BC-48C6-8D7E-5DC4D40B314F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SalesforceService.Domain", "SalesforceService\SalesforceService.Domain\SalesforceService.Domain.csproj", "{99284295-522F-4E87-9A8D-42A2B4C1D1DA}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ContentModerationService", "ContentModerationService", "{2E78EF7C-DA32-42D0-8FAD-9ABA2B362FBF}"
 EndProject
@@ -56,6 +62,18 @@ Global
 		{867B6E05-DFD0-46D8-8624-8B7A46C20ADC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{867B6E05-DFD0-46D8-8624-8B7A46C20ADC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{867B6E05-DFD0-46D8-8624-8B7A46C20ADC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FBBEA1CA-2E9C-485D-BBC4-0C12A30A23FE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FBBEA1CA-2E9C-485D-BBC4-0C12A30A23FE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FBBEA1CA-2E9C-485D-BBC4-0C12A30A23FE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FBBEA1CA-2E9C-485D-BBC4-0C12A30A23FE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3C496714-37BC-48C6-8D7E-5DC4D40B314F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3C496714-37BC-48C6-8D7E-5DC4D40B314F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3C496714-37BC-48C6-8D7E-5DC4D40B314F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3C496714-37BC-48C6-8D7E-5DC4D40B314F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{99284295-522F-4E87-9A8D-42A2B4C1D1DA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{99284295-522F-4E87-9A8D-42A2B4C1D1DA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{99284295-522F-4E87-9A8D-42A2B4C1D1DA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{99284295-522F-4E87-9A8D-42A2B4C1D1DA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -68,6 +86,9 @@ Global
 		{E916E056-DA26-4B76-9BB7-A171B1137EEE} = {2E78EF7C-DA32-42D0-8FAD-9ABA2B362FBF}
 		{867B6E05-DFD0-46D8-8624-8B7A46C20ADC} = {2E78EF7C-DA32-42D0-8FAD-9ABA2B362FBF}
 		{CA50682A-6C2B-4501-B868-34ABDC633D6D} = {90B1B96F-9BA5-4DB5-8D78-4661D33FA9BD}
+		{FBBEA1CA-2E9C-485D-BBC4-0C12A30A23FE} = {90B1B96F-9BA5-4DB5-8D78-4661D33FA9BD}
+		{3C496714-37BC-48C6-8D7E-5DC4D40B314F} = {90B1B96F-9BA5-4DB5-8D78-4661D33FA9BD}
+		{99284295-522F-4E87-9A8D-42A2B4C1D1DA} = {90B1B96F-9BA5-4DB5-8D78-4661D33FA9BD}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0E50BAFA-530D-4006-942A-9F313B743425}
