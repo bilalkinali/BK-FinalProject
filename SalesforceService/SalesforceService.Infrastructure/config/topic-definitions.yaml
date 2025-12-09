@@ -1,5 +1,6 @@
-topics:
-  - salesforceTopic: "/event/Case_Created_Event__e"
-    description: "Case created in Salesforce and needs to be moderated."
-    dtoType: "CaseSubmitted"
-    internalTopic: "case-submitted"
+topicDefinitions:
+  topics:
+    - salesforceTopic: "/event/Case_Created_Event__e"
+      description: "Case created in Salesforce and needs to be moderated."
+      dtoType: "CaseSubmitted"
+      internalTopic: "case-submitted"

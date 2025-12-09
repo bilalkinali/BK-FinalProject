@@ -22,14 +22,9 @@ public class EventCommand : IEventCommand
         var recordId = _idHelper.ExtractRecordId(fields)
             ?? throw new Exception("RecordId__c missing in Inbound Event");
 
-        var objectType = _idHelper.ResolveObjectType(recordId);
+        var objectType = _idHelper.ResolveObjectType(recordId); // Domain logic? Maybe value object
 
-        var inboundEvent = InboundEvent.Create(
-            topicName,
-            replayId,
-            recordId,
-            objectType
-        );
+        var inboundEvent = InboundEvent.Create(topicName, replayId, recordId, objectType);
 
         // Save to DB (UoW)
 

@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using SalesforceService.Application.Commands;
 using SalesforceService.Application.Helpers;
+using SalesforceService.Application.Services.Interfaces;
 
 namespace SalesforceService.Application;
 
@@ -11,6 +12,7 @@ public static class DependencyInjection
 
         services.AddScoped<IRecordIdentificationHelper, RecordIdentificationHelper>();
         services.AddScoped<IEventCommand, EventCommand>();
+        services.AddScoped<IEventHandler, Services.EventHandler>();
 
 
         return services;

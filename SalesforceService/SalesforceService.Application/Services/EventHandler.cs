@@ -1,4 +1,5 @@
 ﻿
+using Microsoft.Extensions.Logging;
 using SalesforceService.Application.Services.Interfaces;
 using SalesforceService.Application.Services.TopicDefinitions;
 
@@ -8,13 +9,16 @@ public class EventHandler : IEventHandler
 {
     private readonly ITopicDefinitionProvider _topicDefinitions;
     private readonly IPublisherService _publisherService;
+    private readonly ILogger<EventHandler> _logger;
 
     public EventHandler(
         ITopicDefinitionProvider topicDefinitions,
-        IPublisherService publisherService)
+        IPublisherService publisherService,
+        ILogger<EventHandler> logger)
     {
         _topicDefinitions = topicDefinitions;
         _publisherService = publisherService;
+        _logger = logger;
     }
     async Task IEventHandler.HandleAsync(string topicName, string eventId, Dictionary<string, object?> fields)
     {
@@ -31,7 +35,10 @@ public class EventHandler : IEventHandler
 
                 var caseSubmittedDto = new CaseSubmittedDto(eventId, contentValue!);
 
-                await _publisherService.PublishAsync(topicDefinition.InternalTopic, caseSubmittedDto);
+                _logger.LogInformation("Publishing {Dto} to topic {Topic}", typeof(CaseSubmittedDto), topicDefinition.InternalTopic);
+                _logger.LogInformation("EventId: {EventId}, Content: {Content}", caseSubmittedDto.EventId, caseSubmittedDto.Content);
+
+                //await _publisherService.PublishAsync(topicDefinition.InternalTopic, caseSubmittedDto);
                 break;
 
             default:
@@ -40,4 +47,4 @@ public class EventHandler : IEventHandler
     }
 }
 
-internal record CaseSubmittedDto (string EventId, string Content);
+internal record CaseSubmittedDto (string EventId, string Content); // Move to Dtos folder

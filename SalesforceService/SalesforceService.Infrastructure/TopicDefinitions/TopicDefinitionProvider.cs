@@ -19,7 +19,21 @@ public class TopicDefinitionProvider : ITopicDefinitionProvider
 
     TopicDefinition? ITopicDefinitionProvider.GetTopicDefinition(string topicName)
     {
+        //_lookup.TryGetValue(topicName, out var topicDefinition);
+
+        Console.WriteLine($"Requested key: '{topicName}'");
+
+        Console.WriteLine("Available keys:");
+        foreach (var key in _lookup.Keys)
+            Console.WriteLine($" - '{key}'");
+
         _lookup.TryGetValue(topicName, out var topicDefinition);
+
+        Console.WriteLine(topicDefinition == null
+            ? "Result: NULL"
+            : $"Result: FOUND → {topicDefinition.InternalTopic}");
+
+
         return topicDefinition;
     }
 }

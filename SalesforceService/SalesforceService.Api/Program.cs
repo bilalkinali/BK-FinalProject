@@ -12,8 +12,14 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddOpenApi();
 builder.Services.AddDaprClient();
 
+var path = Path.Combine(builder.Environment.ContentRootPath,
+    "..",
+    "SalesforceService.Infrastructure",
+    "config",
+    "topic-definitions.yaml");
+
 // Load Salesforce settings from YAML
-builder.Configuration.AddYamlFile("config/salesforce-settings.yaml", optional: false, reloadOnChange: true);
+builder.Configuration.AddYamlFile(path, optional: false);
 
 builder.Services.AddInfrastructureServices(builder.Configuration);
 builder.Services.AddApplicationServices();

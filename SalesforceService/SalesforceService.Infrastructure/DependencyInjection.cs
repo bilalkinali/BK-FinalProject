@@ -2,9 +2,11 @@
 using Grpc.Net.Client;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using SalesforceService.Application.Services.Interfaces;
 using SalesforceService.Application.Services.TopicDefinitions;
 using SalesforceService.Infrastructure.Auth;
 using SalesforceService.Infrastructure.Schema;
+using SalesforceService.Infrastructure.Services;
 using SalesforceService.Infrastructure.TopicDefinitions;
 
 namespace SalesforceService.Infrastructure;
@@ -34,10 +36,12 @@ public static class DependencyInjection
             return new PubSub.PubSubClient(channel);
         });
 
+        // Publisher service
+        services.AddScoped<IPublisherService, PublisherService>();
 
         // Topic definitions
         var topicConfig = new TopicDefinitionConfig();
-        config.GetSection("topics").Bind(topicConfig);
+        config.GetSection("topicDefinitions").Bind(topicConfig);
 
         services.AddSingleton(topicConfig);
         services.AddSingleton<ITopicDefinitionProvider, TopicDefinitionProvider>();
