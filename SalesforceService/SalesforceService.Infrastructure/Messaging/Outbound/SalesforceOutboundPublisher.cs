@@ -4,7 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using SalesforceService.Infrastructure.Auth;
 using SalesforceService.Infrastructure.Helpers;
-using SalesforceService.Infrastructure.Schema;
+using SalesforceService.Infrastructure.Services.Schema;
 
 namespace SalesforceService.Infrastructure.Messaging.Outbound;
 

@@ -1,4 +1,4 @@
-﻿namespace SalesforceService.Infrastructure.Schema;
+﻿namespace SalesforceService.Infrastructure.Services.Schema;
 
 public interface ISalesforceSchemaService
 {
