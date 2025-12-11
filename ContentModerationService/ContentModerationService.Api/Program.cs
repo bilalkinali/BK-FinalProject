@@ -23,6 +23,8 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
+app.UseRouting();
+app.UseCloudEvents();
 app.MapSubscribeHandler();
 
 //app.UseHttpsRedirection();
@@ -57,11 +59,7 @@ app.MapPost("/events/contentmoderation",
                           "EventId: {Id}\n" +
                           "Content: {Content}", payload.EventId, payload.Content);
 
-        var decision = await command.ModerateContentAsync(MediaType.Text, payload.Content);
-
-        logger.LogInformation("Decision made by AI: {Decision}", decision.SuggestedAction);
-
-        var contentModeratedDto = new ContentModeratedDto(payload.EventId, decision.SuggestedAction);
+        await command.ModerateContentAsync(MediaType.Text, payload.EventId, payload.Content);
         // Publish
 
 
@@ -72,7 +70,7 @@ app.MapPost("/events/contentmoderation",
         Console.WriteLine(ex.Message);
         return Results.Problem(ex.Message);
     }
-});
+}).WithTopic("pubsub", "case-submitted");
 
 app.Run();
 

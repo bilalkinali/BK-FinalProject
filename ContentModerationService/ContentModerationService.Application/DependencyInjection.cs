@@ -10,6 +10,7 @@ public static class DependencyInjection
     {
         services.AddScoped<IContentModerationCommand, ContentModerationCommand>();
         services.AddScoped<IDecisionService, DecisionService>();
+        services.AddScoped<IEventHandler, Services.EventHandler>();
         return services;
     }
 }

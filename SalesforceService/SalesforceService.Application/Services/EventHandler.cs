@@ -1,5 +1,4 @@
-﻿
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using SalesforceService.Application.Services.Interfaces;
 using SalesforceService.Application.Services.TopicDefinitions;
 

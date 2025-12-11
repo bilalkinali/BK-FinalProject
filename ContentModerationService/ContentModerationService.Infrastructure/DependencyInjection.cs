@@ -1,4 +1,5 @@
 ﻿using ContentModerationService.Application.Configuration;
+using ContentModerationService.Application.Services;
 using ContentModerationService.Infrastructure.Helpers;
 using ContentModerationService.Infrastructure.ServiceProxyImpl;
 using ContentModerationService.Application.Services.ProxyInterface;
@@ -20,6 +21,7 @@ public static class DependencyInjection
         services.AddScoped<IRejectionThresholdProvider, RejectionThresholdProvider>();
         services.AddScoped<IAzureContentSafetyProxy, AzureContentSafetyProxy>();
         services.AddScoped<IContentDetection, ContentDetection>();
+        services.AddScoped<IPublisherService, DaprPublisherService>();
         return services;
     }
 }
