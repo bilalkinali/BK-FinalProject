@@ -11,6 +11,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddOpenApi();
 
 builder.Services.AddHttpClient();
+builder.Services.AddDaprClient();
 
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices(builder.Configuration);
@@ -23,6 +24,10 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
+app.UseRouting();
+app.UseCloudEvents();
+app.MapSubscribeHandler();
+
 //app.UseHttpsRedirection();
 
 
@@ -32,33 +37,32 @@ app.MapGet("/test", () => "Hello World! - From Content Moderation Service");
 app.MapPost("/moderation", (ILogger<Program> logger, ContentModerationDto payload) =>
     {
         logger.LogInformation("Content for moderation received:\n" +
-                              "ContentId: {Id}\n" +
-                              "Content: {Content}", payload.ContentId, payload.Content);
+                              "EventId: {Id}\n" +
+                              "Content: {Content}", payload.EventId, payload.Content);
 
         // Simulate moderation logic
 
         logger.LogInformation("Content moderated:\n" +
-                              "ContentId: {Id}\n" +
-                              "Action: {Action}", payload.ContentId, Action.Accept);
+                              "EventId: {Id}\n" +
+                              "Action: {Action}", payload.EventId, Action.Accept);
 
-        return new ContentModeratedDto(ContentId: payload.ContentId, Result: Action.Accept);
+        return new ContentModeratedDto(EventId: payload.EventId, Result: Action.Accept);
     });
 
 app.MapPost("/events/contentmoderation", 
-    async (ILogger<Program> logger, ContentModerationDto payload, IContentModerationCommand command) =>
+    async (ILogger<Program> logger,
+        ContentModerationDto payload,
+        IContentModerationCommand command) =>
 {
     try
     {
         logger.LogInformation("Event received for content moderation:\n" +
-                          "ContentId: {Id}\n" +
-                          "Content: {Content}", payload.ContentId, payload.Content);
+                          "EventId: {Id}\n" +
+                          "Content: {Content}", payload.EventId, payload.Content);
 
-        var decision = await command.ModerateContentAsync(MediaType.Text, payload.Content);
-
-        logger.LogInformation("Decision made by AI: {Decision}", decision.SuggestedAction);
-
-        var contentModeratedDto = new ContentModeratedDto(payload.ContentId, decision.SuggestedAction);
+        await command.ModerateContentAsync(MediaType.Text, payload.EventId, payload.Content);
         // Publish
+
 
         return Results.Created();
     }
@@ -67,9 +71,9 @@ app.MapPost("/events/contentmoderation",
         Console.WriteLine(ex.Message);
         return Results.Problem(ex.Message);
     }
-});
+}).WithTopic("pubsub", "case-submitted");
 
 app.Run();
 
-public record ContentModerationDto (string ContentId, string Content);
-public record ContentModeratedDto(string ContentId, Action Result);
+public record ContentModerationDto (string EventId, string Content);
+public record ContentModeratedDto(string EventId, Action Result);

@@ -1,5 +1,4 @@
-﻿
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using SalesforceService.Application.Services.Interfaces;
 using SalesforceService.Application.Services.TopicDefinitions;
 
@@ -38,7 +37,7 @@ public class EventHandler : IEventHandler
                 _logger.LogInformation("Publishing {Dto} to topic {Topic}", typeof(CaseSubmittedDto), topicDefinition.InternalTopic);
                 _logger.LogInformation("EventId: {EventId}, Content: {Content}", caseSubmittedDto.EventId, caseSubmittedDto.Content);
 
-                //await _publisherService.PublishAsync(topicDefinition.InternalTopic, caseSubmittedDto);
+                await _publisherService.PublishAsync(topicDefinition.InternalTopic, caseSubmittedDto);
                 break;
 
             default:

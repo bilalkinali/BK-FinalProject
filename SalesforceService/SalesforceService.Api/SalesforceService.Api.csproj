@@ -7,11 +7,11 @@
     <UserSecretsId>d42ee158-35ce-44af-bcc2-9e0ef4111207</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <DockerfileContext>..\..</DockerfileContext>
+    <DockerComposeProjectPath>..\..\docker-compose.dcproj</DockerComposeProjectPath>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dapr.AspNetCore" Version="1.16.1" />
-    <PackageReference Include="Dapr.Client" Version="1.16.1" />
+    <PackageReference Include="Dapr.AspNetCore" Version="1.15.4" />
     <PackageReference Include="Google.Protobuf" Version="3.33.1" />
     <PackageReference Include="Grpc.Net.Client" Version="2.71.0" />
     <PackageReference Include="Grpc.Tools" Version="2.76.0">

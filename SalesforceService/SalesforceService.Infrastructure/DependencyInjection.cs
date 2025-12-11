@@ -5,8 +5,8 @@ using Microsoft.Extensions.DependencyInjection;
 using SalesforceService.Application.Services.Interfaces;
 using SalesforceService.Application.Services.TopicDefinitions;
 using SalesforceService.Infrastructure.Auth;
-using SalesforceService.Infrastructure.Schema;
 using SalesforceService.Infrastructure.Services;
+using SalesforceService.Infrastructure.Services.Schema;
 using SalesforceService.Infrastructure.TopicDefinitions;
 
 namespace SalesforceService.Infrastructure;
@@ -37,7 +37,7 @@ public static class DependencyInjection
         });
 
         // Publisher service
-        services.AddScoped<IPublisherService, PublisherService>();
+        services.AddScoped<IPublisherService, DaprPublisherService>();
 
         // Topic definitions
         var topicConfig = new TopicDefinitionConfig();

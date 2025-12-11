@@ -1,0 +1,14 @@
+apiVersion: dapr.io/v1alpha1
+kind: Configuration
+metadata:
+  name: config
+spec:
+  features:
+    - name: Actor.Runtime
+      enabled: false
+    - name: Scheduler
+      enabled: false
+    - name: Placement
+      enabled: false
+  tracing:
+    samplingRate: "1"

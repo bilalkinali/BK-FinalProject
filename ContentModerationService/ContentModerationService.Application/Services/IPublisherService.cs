@@ -1,4 +1,4 @@
-﻿namespace SalesforceService.Application.Services.Interfaces;
+﻿namespace ContentModerationService.Application.Services;
 
 public interface IPublisherService
 {

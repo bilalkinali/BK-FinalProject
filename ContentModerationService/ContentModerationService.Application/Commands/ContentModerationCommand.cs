@@ -11,17 +11,20 @@ public class ContentModerationCommand : IContentModerationCommand
     private readonly IContentDetection _contentDetection;
     private readonly IDecisionService _decisionService;
     private readonly IRejectionThresholdProvider _rejectionDetectionProvider;
+    private readonly IEventHandler _eventHandler;
 
     public ContentModerationCommand(
         IContentDetection contentDetection,
         IDecisionService decisionService,
-        IRejectionThresholdProvider rejectionDetectionProvider)
+        IRejectionThresholdProvider rejectionDetectionProvider,
+        IEventHandler eventHandler)
     {
         _contentDetection = contentDetection;
         _decisionService = decisionService;
         _rejectionDetectionProvider = rejectionDetectionProvider;
+        _eventHandler = eventHandler;
     }
-    async Task<Decision> IContentModerationCommand.ModerateContentAsync(MediaType mediaType, string content)
+    async Task IContentModerationCommand.ModerateContentAsync(MediaType mediaType, string correlationId, string content)
     {
         // Detect / analyze content
         var detectionResult = await _contentDetection.ContentDetectionAsync(mediaType, content);
@@ -32,8 +35,9 @@ public class ContentModerationCommand : IContentModerationCommand
         // Make decision based on detection results and thresholds
         var decisionResult = _decisionService.MakeDecision(detectionResult, rejectionThresholds);
 
-        // Publish decision result?
+        // Save decision result
 
-        return decisionResult;
+        // Publish decision result
+        await _eventHandler.ContentModeratedAsync(correlationId, decisionResult.SuggestedAction);
     }
 }

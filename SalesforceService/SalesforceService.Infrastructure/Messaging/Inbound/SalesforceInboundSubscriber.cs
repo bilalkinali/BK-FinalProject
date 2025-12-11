@@ -9,7 +9,7 @@ using Microsoft.Extensions.Logging;
 using SalesforceService.Application.Commands;
 using SalesforceService.Infrastructure.Auth;
 using SalesforceService.Infrastructure.Helpers;
-using SalesforceService.Infrastructure.Schema;
+using SalesforceService.Infrastructure.Services.Schema;
 
 namespace SalesforceService.Infrastructure.Messaging.Inbound;
 

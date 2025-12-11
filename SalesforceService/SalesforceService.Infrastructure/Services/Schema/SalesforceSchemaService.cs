@@ -4,7 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using SalesforceService.Infrastructure.Auth;
 
-namespace SalesforceService.Infrastructure.Schema;
+namespace SalesforceService.Infrastructure.Services.Schema;
 
 public class SalesforceSchemaService : ISalesforceSchemaService
 {
