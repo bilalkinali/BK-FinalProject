@@ -1,0 +1,39 @@
+services:
+  contentmoderationservice-api:
+    image: ${DOCKER_REGISTRY-}contentmoderationserviceapi
+    build:
+      context: .
+      dockerfile: ContentModerationService/ContentModerationService.Api/Dockerfile
+
+  contentmoderationservice-dapr:
+    image: "daprio/daprd:1.15.4"    
+    network_mode: "service:contentmoderationservice-api"
+    depends_on:
+      contentmoderationservice-api:
+        condition: service_started
+      rabbitmq:
+        condition: service_healthy
+
+  salesforceservice-api:
+    image: ${DOCKER_REGISTRY-}salesforceserviceapi
+    build:
+      context: .
+      dockerfile: SalesforceService/SalesforceService.Api/Dockerfile
+
+  salesforceservice-dapr:
+    image: "daprio/daprd:1.15.4"    
+    network_mode: "service:salesforceservice-api"
+    depends_on:
+      salesforceservice-api:
+        condition: service_started
+      rabbitmq:
+        condition: service_healthy
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    healthcheck:
+      test: rabbitmq-diagnostics check_port_connectivity
+      interval: 15s
+      timeout: 15s
+      retries: 10

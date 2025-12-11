@@ -1,0 +1,46 @@
+services:
+  contentmoderationservice-api:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTP_PORTS=8080
+
+  contentmoderationservice-dapr:    
+    command: >
+      ./daprd
+      --app-id contentmoderationservice-api
+      --app-port 8080
+      --resources-path /dapr/components
+      --config /dapr/config.yaml
+    volumes:
+      - ./dapr/components/:/dapr/components
+      - ./dapr/config.yaml:/dapr/config.yaml
+
+  salesforceservice-api:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTP_PORTS=8080
+
+  salesforceservice-dapr:    
+    command: >
+      ./daprd
+      --app-id salesforceservice-api
+      --app-port 8080
+      --resources-path /dapr/components
+      --config /dapr/config.yaml
+    volumes:
+      - ./dapr/components/:/dapr/components
+      - ./dapr/config.yaml:/dapr/config.yaml
+
+
+  rabbitmq:
+      environment:
+        RABBITMQ_DEFAULT_USER: guest
+        RABBITMQ_DEFAULT_PASS: guest
+      ports:
+        - "5672:5672"  # AMQP port
+        - "15672:15672"  # Management UI port
+      volumes:
+        - rabbitmq_data:/var/lib/rabbitmq
+
+volumes:
+  rabbitmq_data:

@@ -13,10 +13,10 @@ builder.Services.AddOpenApi();
 builder.Services.AddDaprClient();
 
 var path = Path.Combine(builder.Environment.ContentRootPath,
-    "..",
-    "SalesforceService.Infrastructure",
     "config",
     "topic-definitions.yaml");
+
+Console.WriteLine(path);
 
 // Load Salesforce settings from YAML
 builder.Configuration.AddYamlFile(path, optional: false);
@@ -54,6 +54,10 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
+app.UseRouting();
+app.UseCloudEvents();
+app.MapSubscribeHandler();
+
 //app.UseHttpsRedirection();
 
 
@@ -78,5 +82,27 @@ app.MapPost("/salesforce/test-publish", async (
     return Results.Ok("Published test event to Salesforce.");
 });
 
+app.MapPost("/events/test-publish", async (
+    SalesforceOutboundPublisher publisher,
+    ContentModeratedDto contentModeratedDto) =>
+{
+    // Testing - publish a test event to Salesforce
+    var payload = new Dictionary<string, object?>
+    {
+        ["Case_Id__c"] = "500dL00002Ppt4fQAB", // Use command to get real case Id from database using correlation Id
+        ["Moderation_Result__c"] = contentModeratedDto.SuggestedAction,
+
+        ["CreatedDate"] = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
+        ["CreatedById"] = "005dL00001TQ0MbQAL",
+        ["EventUuid"] = contentModeratedDto.CorrelationId
+    };
+
+    await publisher.PublishAsync("/event/Case_Moderation_Event__e", payload);
+
+    return Results.Ok("Published test event to Salesforce.");
+}).WithTopic("pubsub","content-moderated");
+
 
 app.Run();
+
+internal record ContentModeratedDto(string CorrelationId, Action SuggestedAction);
