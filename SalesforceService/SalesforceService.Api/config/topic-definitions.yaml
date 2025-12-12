@@ -1,6 +1,13 @@
 topicDefinitions:
-  topics:
+  inbound:
     - salesforceTopic: "/event/Case_Created_Event__e"
-      description: "Case created in Salesforce and needs to be moderated."
-      dtoType: "CaseSubmitted"
       internalTopic: "case-submitted"
+      dtoType: "CaseSubmitted"
+      description: "Case created in Salesforce and needs to be moderated."   
+      
+  outbound:
+    - internalTopic: "case-moderated"
+      salesforceTopic: "/event/Case_Moderated_Event__e"
+      dtoType: "CaseModerated"
+      description: "Case has been moderated and the result is sent back to Salesforce."
+      

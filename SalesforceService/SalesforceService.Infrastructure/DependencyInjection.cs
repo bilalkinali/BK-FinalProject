@@ -47,7 +47,8 @@ public static class DependencyInjection
         config.GetSection("topicDefinitions").Bind(topicConfig);
 
         services.AddSingleton(topicConfig);
-        services.AddSingleton<ITopicDefinitionProvider, TopicDefinitionProvider>();
+        services.AddSingleton<IInboundTopicDefinitionProvider, InboundTopicDefinitionProvider>();
+        services.AddSingleton<IOutboundTopicDefinitionProvider, OutboundTopicDefinitionProvider>();
 
 
         // Database context

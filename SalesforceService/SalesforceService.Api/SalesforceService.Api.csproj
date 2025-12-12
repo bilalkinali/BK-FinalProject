@@ -30,8 +30,4 @@
     <ProjectReference Include="..\SalesforceService.Infrastructure\SalesforceService.Infrastructure.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="BackgroundServices\" />
-  </ItemGroup>
-
 </Project>

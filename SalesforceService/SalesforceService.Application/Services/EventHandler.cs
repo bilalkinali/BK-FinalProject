@@ -6,22 +6,22 @@ namespace SalesforceService.Application.Services;
 
 public class EventHandler : IEventHandler
 {
-    private readonly ITopicDefinitionProvider _topicDefinitions;
+    private readonly IInboundTopicDefinitionProvider _inboundTopicDefinitions;
     private readonly IPublisherService _publisherService;
     private readonly ILogger<EventHandler> _logger;
 
     public EventHandler(
-        ITopicDefinitionProvider topicDefinitions,
+        IInboundTopicDefinitionProvider inboundTopicDefinitions,
         IPublisherService publisherService,
         ILogger<EventHandler> logger)
     {
-        _topicDefinitions = topicDefinitions;
+        _inboundTopicDefinitions = inboundTopicDefinitions;
         _publisherService = publisherService;
         _logger = logger;
     }
     async Task IEventHandler.HandleAsync(string topicName, string eventId, Dictionary<string, object?> fields)
     {
-        var topicDefinition = _topicDefinitions.GetTopicDefinition(topicName)
+        var topicDefinition = _inboundTopicDefinitions.GetBySalesforceTopic(topicName)
             ?? throw new Exception($"Uknown topic: {topicName}");
 
         switch (topicDefinition.DtoType)
@@ -34,7 +34,7 @@ public class EventHandler : IEventHandler
 
                 var caseSubmittedDto = new CaseSubmittedDto(eventId, contentValue!);
 
-                _logger.LogInformation("Publishing {Dto} to topic {Topic}", typeof(CaseSubmittedDto), topicDefinition.InternalTopic);
+                _logger.LogInformation("Publishing {Dto} to topic {Topic}", topicDefinition.DtoType, topicDefinition.InternalTopic);
                 _logger.LogInformation("EventId: {EventId}, Content: {Content}", caseSubmittedDto.EventId, caseSubmittedDto.Content);
 
                 await _publisherService.PublishAsync(topicDefinition.InternalTopic, caseSubmittedDto);
