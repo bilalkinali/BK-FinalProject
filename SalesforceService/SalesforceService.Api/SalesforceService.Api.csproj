@@ -19,11 +19,13 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.10" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.4" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.23.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\SalesforceService.Application\SalesforceService.Application.csproj" />
+    <ProjectReference Include="..\SalesforceService.DatabaseMigration\SalesforceService.DatabaseMigration.csproj" />
     <ProjectReference Include="..\SalesforceService.Domain\SalesforceService.Domain.csproj" />
     <ProjectReference Include="..\SalesforceService.Infrastructure\SalesforceService.Infrastructure.csproj" />
   </ItemGroup>

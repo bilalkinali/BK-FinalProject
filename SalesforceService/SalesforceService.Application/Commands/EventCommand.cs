@@ -1,4 +1,5 @@
-﻿using SalesforceService.Application.Helpers;
+﻿using Microsoft.Extensions.Logging;
+using SalesforceService.Application.Helpers;
 using SalesforceService.Application.Services.Interfaces;
 using SalesforceService.Domain.Entities;
 
@@ -8,13 +9,22 @@ public class EventCommand : IEventCommand
 {
     private readonly IRecordIdentificationHelper _idHelper;
     private readonly IEventHandler _eventHandler;
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly IEventRepository _eventRepository;
+    private readonly ILogger<EventCommand> _logger;
 
     public EventCommand(
         IRecordIdentificationHelper idHelper,
-        IEventHandler eventHandler)
+        IEventHandler eventHandler,
+        IUnitOfWork unitOfWork,
+        IEventRepository eventRepository,
+        ILogger<EventCommand> logger)
     {
         _idHelper = idHelper;
         _eventHandler = eventHandler;
+        _unitOfWork = unitOfWork;
+        _eventRepository = eventRepository;
+        _logger = logger;
     }
 
     async Task IEventCommand.CreateInboundEventAsync(string topicName, string replayId, Dictionary<string, object?> fields)
@@ -24,12 +34,27 @@ public class EventCommand : IEventCommand
 
         var objectType = _idHelper.ResolveObjectType(recordId); // Domain logic? Maybe value object
 
-        var inboundEvent = InboundEvent.Create(topicName, replayId, recordId, objectType);
+        try
+        {
+            // Do
+            var inboundEvent = InboundEvent.Create(topicName, replayId, recordId, objectType);
 
-        // Save to DB (UoW)
+            // Save
+            await _eventRepository.AddInboundEventAsync(inboundEvent);
+            await _unitOfWork.CommitAsync();
 
-        // Publish internal event (Dapr)
-        await _eventHandler.HandleAsync(topicName, inboundEvent.EventId, fields);
+            // Publish internal event
+            await _eventHandler.HandleAsync(topicName, inboundEvent.EventId, fields);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error creating inbound event for Topic: {TopicName}, ReplayId: {ReplayId}, RecordId: {RecordId}, ObjectType: {ObjectType}",
+                topicName, replayId, recordId, objectType);
+
+            await _unitOfWork.RollbackAsync();
+            throw;
+        }
+        
     }
 
     async Task IEventCommand.CreateOutboundEventAsync(string topicName, string replayId, Dictionary<string, object?> fields)
