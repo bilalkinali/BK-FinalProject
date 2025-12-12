@@ -1,4 +1,6 @@
-﻿namespace SalesforceService.Domain.Entities;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace SalesforceService.Domain.Entities;
 
 public class InboundEvent
 {
@@ -16,6 +18,7 @@ public class InboundEvent
         CreatedAt = DateTime.UtcNow;
     }
 
+    [Key]
     public string EventId { get; protected set; }
     public string TopicName { get; protected set; }
     public string ReplayId { get; protected set; }
