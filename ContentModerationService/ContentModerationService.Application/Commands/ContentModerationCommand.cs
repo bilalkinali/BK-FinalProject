@@ -1,7 +1,6 @@
 ﻿using ContentModerationService.Application.Configuration;
 using ContentModerationService.Application.Services;
 using ContentModerationService.Application.Services.ProxyInterface;
-using ContentModerationService.Domain;
 using ContentModerationService.Domain.Enums;
 
 namespace ContentModerationService.Application.Commands;

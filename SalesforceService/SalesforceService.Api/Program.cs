@@ -1,4 +1,7 @@
 using SalesforceService.Application;
+using SalesforceService.Application.Commands;
+using SalesforceService.Application.Services;
+using SalesforceService.Application.Services.Interfaces;
 using SalesforceService.Infrastructure;
 using SalesforceService.Infrastructure.Messaging.Inbound;
 using SalesforceService.Infrastructure.Messaging.Outbound;
@@ -64,12 +67,12 @@ app.MapSubscribeHandler();
 app.MapGet("/test", () => "Hello World - From Salesforce Service");
 
 app.MapPost("/salesforce/test-publish", async (
-    SalesforceOutboundPublisher publisher) =>
+    ISalesforcePublisherService publisher) =>
 {
     // Testing - publish a test event to Salesforce
     var payload = new Dictionary<string, object?>
     {
-        ["Case_Id__c"] = "500dL00002Ppt4fQAB",
+        ["RecordId__c"] = "500dL00002Ppt4fQAB",
         ["Moderation_Result__c"] = "Accept",
 
         ["CreatedDate"] = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
@@ -82,27 +85,23 @@ app.MapPost("/salesforce/test-publish", async (
     return Results.Ok("Published test event to Salesforce.");
 });
 
-app.MapPost("/events/test-publish", async (
-    SalesforceOutboundPublisher publisher,
+app.MapPost("/events/contentmoderated", async (
+    IEventCommand command,
     ContentModeratedDto contentModeratedDto) =>
 {
-    // Testing - publish a test event to Salesforce
-    var payload = new Dictionary<string, object?>
-    {
-        ["Case_Id__c"] = "500dL00002Ppt4fQAB", // Use command to get real case Id from database using correlation Id
-        ["Moderation_Result__c"] = contentModeratedDto.SuggestedAction,
+    string topic = "content-moderated";
 
-        ["CreatedDate"] = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
-        ["CreatedById"] = "005dL00001TQ0MbQAL",
-        ["EventUuid"] = contentModeratedDto.CorrelationId
-    };
+    Console.WriteLine("Received test publish request.");
+    Console.WriteLine($"CorrelationId: {contentModeratedDto.CorrelationId}");
+    Console.WriteLine($"SuggestedAction: {contentModeratedDto.Result}");
 
-    await publisher.PublishAsync("/event/Case_Moderation_Event__e", payload);
-
+    await command.CreateOutboundEventAsync(
+        topic,
+        contentModeratedDto.CorrelationId,
+        contentModeratedDto.Result);
+    
     return Results.Ok("Published test event to Salesforce.");
 }).WithTopic("pubsub","content-moderated");
 
 
 app.Run();
-
-internal record ContentModeratedDto(string CorrelationId, Action SuggestedAction);

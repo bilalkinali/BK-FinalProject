@@ -8,8 +8,9 @@ public class SalesforceContext : DbContext
     public SalesforceContext(DbContextOptions<SalesforceContext> options) : base(options)
     {
     }
-
+    
     public DbSet<InboundEvent> InboundEvents { get; set; }
+    public DbSet<OutboundEvent> OutboundEvents { get; set; }
 
     //protected override void OnModelCreating(ModelBuilder modelBuilder)
     //{
@@ -17,7 +18,7 @@ public class SalesforceContext : DbContext
     //    modelBuilder.Entity<InboundEvent>(entity =>
     //    {
     //        entity.HasKey(e => e.EventId);
-    //        entity.Property(e => e.TopicName).IsRequired();
+    //        entity.Property(e => e.SalesforceTopic).IsRequired();
     //        entity.Property(e => e.ReplayId).IsRequired();
     //        entity.Property(e => e.RecordId).IsRequired();
     //        entity.Property(e => e.ObjectType).IsRequired();

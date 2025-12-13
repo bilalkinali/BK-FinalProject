@@ -1,6 +1,9 @@
-﻿namespace SalesforceService.Application.Services.Interfaces;
+﻿using SalesforceService.Domain.Entities;
+
+namespace SalesforceService.Application.Services.Interfaces;
 
 public interface IEventHandler
 {
-    Task HandleAsync(string topicName, string eventId, Dictionary<string, object?> fields);
+    Task PublishInboundEventAsync(string salesforceTopic, string correlationId, Dictionary<string, object?> fields);
+    Task PublishOutboundEventAsync(string internalTopic, string recordId, string result);
 }

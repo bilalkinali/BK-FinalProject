@@ -1,6 +1,4 @@
-﻿//using Dapr.Client;
-
-using Eventbus.V1;
+﻿using Eventbus.V1;
 using Grpc.Core;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;

@@ -7,6 +7,7 @@ using SalesforceService.Application;
 using SalesforceService.Application.Services.Interfaces;
 using SalesforceService.Application.Services.TopicDefinitions;
 using SalesforceService.Infrastructure.Auth;
+using SalesforceService.Infrastructure.Messaging.Outbound;
 using SalesforceService.Infrastructure.Repositories;
 using SalesforceService.Infrastructure.Services;
 using SalesforceService.Infrastructure.Services.Schema;
@@ -39,16 +40,16 @@ public static class DependencyInjection
             return new PubSub.PubSubClient(channel);
         });
 
-        // Publisher service
+        // Publisher services
         services.AddScoped<IPublisherService, DaprPublisherService>();
+        services.AddScoped<ISalesforcePublisherService, SalesforceOutboundPublisher>();
 
         // Topic definitions
         var topicConfig = new TopicDefinitionConfig();
         config.GetSection("topicDefinitions").Bind(topicConfig);
 
         services.AddSingleton(topicConfig);
-        services.AddSingleton<IInboundTopicDefinitionProvider, InboundTopicDefinitionProvider>();
-        services.AddSingleton<IOutboundTopicDefinitionProvider, OutboundTopicDefinitionProvider>();
+        services.AddSingleton<ITopicDefinitionProvider, TopicDefinitionProvider>();
 
 
         // Database context

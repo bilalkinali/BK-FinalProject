@@ -38,15 +38,15 @@ app.MapPost("/moderation", (ILogger<Program> logger, ContentModerationDto payloa
     {
         logger.LogInformation("Content for moderation received:\n" +
                               "EventId: {Id}\n" +
-                              "Content: {Content}", payload.EventId, payload.Content);
+                              "Content: {Content}", payload.CorrelationId, payload.Content);
 
         // Simulate moderation logic
 
         logger.LogInformation("Content moderated:\n" +
                               "EventId: {Id}\n" +
-                              "Action: {Action}", payload.EventId, Action.Accept);
+                              "Action: {Action}", payload.CorrelationId, Action.Accept);
 
-        return new ContentModeratedDto(EventId: payload.EventId, Result: Action.Accept);
+        return new ContentModeratedDto(CorrelationId: payload.CorrelationId, Result: Action.Accept);
     });
 
 app.MapPost("/events/contentmoderation", 
@@ -58,9 +58,9 @@ app.MapPost("/events/contentmoderation",
     {
         logger.LogInformation("Event received for content moderation:\n" +
                           "EventId: {Id}\n" +
-                          "Content: {Content}", payload.EventId, payload.Content);
+                          "Content: {Content}", payload.CorrelationId, payload.Content);
 
-        await command.ModerateContentAsync(MediaType.Text, payload.EventId, payload.Content);
+        await command.ModerateContentAsync(MediaType.Text, payload.CorrelationId, payload.Content);
         // Publish
 
 
@@ -71,9 +71,9 @@ app.MapPost("/events/contentmoderation",
         Console.WriteLine(ex.Message);
         return Results.Problem(ex.Message);
     }
-}).WithTopic("pubsub", "case-submitted");
+}).WithTopic("pubsub", "content-submitted");
 
 app.Run();
 
-public record ContentModerationDto (string EventId, string Content);
-public record ContentModeratedDto(string EventId, Action Result);
+public record ContentModerationDto (string CorrelationId, string Content);
+public record ContentModeratedDto(string CorrelationId, Action Result);
