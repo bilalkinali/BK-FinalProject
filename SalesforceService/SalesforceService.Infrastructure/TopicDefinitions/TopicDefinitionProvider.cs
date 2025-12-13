@@ -7,33 +7,25 @@ namespace SalesforceService.Infrastructure.TopicDefinitions;
 
 public class TopicDefinitionProvider : ITopicDefinitionProvider
 {
-    private readonly Dictionary<string, TopicDefinition> _lookup;
+    private readonly Dictionary<string, InboundTopicDefinition> _bySalesforceTopic;
+    private readonly Dictionary<string, OutboundTopicDefinition> _byInternalTopic;
     public TopicDefinitionProvider(TopicDefinitionConfig config)
     {
-        // topicName -> TopicDefinition
-        _lookup = config.Topics
+        _bySalesforceTopic = config.Inbound
             .ToDictionary(
                 topicDef => topicDef.SalesforceTopic,
                 topicDef => topicDef);
+
+        _byInternalTopic = config.Outbound
+            .ToDictionary(
+                topicDef => topicDef.InternalTopic,
+                topicDef => topicDef);
     }
 
-    TopicDefinition? ITopicDefinitionProvider.GetTopicDefinition(string topicName)
-    {
-        //_lookup.TryGetValue(topicName, out var topicDefinition);
+    InboundTopicDefinition? ITopicDefinitionProvider.GetBySalesforceTopic(string salesforceTopic)
+        => _bySalesforceTopic.TryGetValue(salesforceTopic, out var def) ? def : null;
 
-        Console.WriteLine($"Requested key: '{topicName}'");
+    OutboundTopicDefinition? ITopicDefinitionProvider.GetByInternalTopic(string internalTopic)
+        => _byInternalTopic.TryGetValue(internalTopic, out var def) ? def : null;
 
-        Console.WriteLine("Available keys:");
-        foreach (var key in _lookup.Keys)
-            Console.WriteLine($" - '{key}'");
-
-        _lookup.TryGetValue(topicName, out var topicDefinition);
-
-        Console.WriteLine(topicDefinition == null
-            ? "Result: NULL"
-            : $"Result: FOUND → {topicDefinition.InternalTopic}");
-
-
-        return topicDefinition;
-    }
 }

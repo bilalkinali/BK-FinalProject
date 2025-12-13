@@ -2,13 +2,14 @@
 using Grpc.Core;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using SalesforceService.Application.Services.Interfaces;
 using SalesforceService.Infrastructure.Auth;
 using SalesforceService.Infrastructure.Helpers;
 using SalesforceService.Infrastructure.Services.Schema;
 
 namespace SalesforceService.Infrastructure.Messaging.Outbound;
 
-public class SalesforceOutboundPublisher
+public class SalesforceOutboundPublisher : ISalesforcePublisherService
 {
     private readonly ILogger<SalesforceOutboundPublisher> _logger;
     private readonly PubSub.PubSubClient _client;
@@ -31,7 +32,7 @@ public class SalesforceOutboundPublisher
         _schemaService = schemaService;
     }
 
-    public async Task PublishAsync(string topicName, Dictionary<string, Object?> payload)
+    async Task ISalesforcePublisherService.PublishAsync(string salesforceTopic, Dictionary<string, Object?> payload)
     {
         var (accessToken, instanceUrl) = await _authService.GetSessionAsync();
 
@@ -43,7 +44,7 @@ public class SalesforceOutboundPublisher
         };
 
         // Fetch schema with Id for outbount event
-        var (schemaId, schema) = await _schemaService.GetSchemaWithIdByTopicAsync(topicName);
+        var (schemaId, schema) = await _schemaService.GetSchemaWithIdByTopicAsync(salesforceTopic);
 
         // Convert payload to Avro binary
         var avroBytes = AvroConverter.SerializeToAvroBytes(payload, schema);
@@ -58,7 +59,7 @@ public class SalesforceOutboundPublisher
         // Build request
         var request = new PublishRequest
         {
-            TopicName = topicName
+            TopicName = salesforceTopic
         };
 
         request.Events.Add(producerEvent);
@@ -68,7 +69,7 @@ public class SalesforceOutboundPublisher
 
         _logger.LogInformation(
             "Published event to topic {Topic}. CorrelationKey={CorrelationKey}, Error={Error}, ReplayId={ReplayId}",
-            topicName,
+            salesforceTopic,
             response.Results[0].CorrelationKey,
             response.Results[0].Error,
             response.Results[0].ReplayId.ToBase64()

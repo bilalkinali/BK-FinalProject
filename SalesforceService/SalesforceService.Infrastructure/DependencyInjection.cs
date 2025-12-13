@@ -1,10 +1,14 @@
 ﻿using Eventbus.V1;
 using Grpc.Net.Client;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using SalesforceService.Application;
 using SalesforceService.Application.Services.Interfaces;
 using SalesforceService.Application.Services.TopicDefinitions;
 using SalesforceService.Infrastructure.Auth;
+using SalesforceService.Infrastructure.Messaging.Outbound;
+using SalesforceService.Infrastructure.Repositories;
 using SalesforceService.Infrastructure.Services;
 using SalesforceService.Infrastructure.Services.Schema;
 using SalesforceService.Infrastructure.TopicDefinitions;
@@ -36,8 +40,9 @@ public static class DependencyInjection
             return new PubSub.PubSubClient(channel);
         });
 
-        // Publisher service
+        // Publisher services
         services.AddScoped<IPublisherService, DaprPublisherService>();
+        services.AddScoped<ISalesforcePublisherService, SalesforceOutboundPublisher>();
 
         // Topic definitions
         var topicConfig = new TopicDefinitionConfig();
@@ -45,6 +50,17 @@ public static class DependencyInjection
 
         services.AddSingleton(topicConfig);
         services.AddSingleton<ITopicDefinitionProvider, TopicDefinitionProvider>();
+
+
+        // Database context
+        services.AddScoped<IEventRepository, EventRepository>();
+        services.AddScoped<IUnitOfWork, UnitOfWork<SalesforceContext>>();
+
+        // Add-Migration InitialMigration -Context SalesforceContext -Project SalesforceService.DatabaseMigration
+        // Update-Database -Context SalesforceContext -Project SalesforceService.DatabaseMigration
+        services.AddDbContext<SalesforceContext>(options =>
+            options.UseNpgsql(config.GetConnectionString("SalesforceDbConnection"),
+                x => x.MigrationsAssembly("SalesforceService.DatabaseMigration")));
 
         return services;
     }

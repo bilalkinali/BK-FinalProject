@@ -1,6 +1,4 @@
-﻿//using Dapr.Client;
-
-using Eventbus.V1;
+﻿using Eventbus.V1;
 using Grpc.Core;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -61,7 +59,7 @@ public class SalesforceInboundSubscriber : BackgroundService, ISalesforceInbound
             return;
         }
 
-        var topics = _config.GetSection("Salesforce:IndboundTopics").Get<string[]>()!;
+        var topics = _config.GetSection("Salesforce:InboundTopics").Get<string[]>()!;
 
         var tasks = topics.Select(topic =>
             Task.Run(() => StartTopicSubscriptionAsync(topic, cancellationToken), cancellationToken)).ToArray();

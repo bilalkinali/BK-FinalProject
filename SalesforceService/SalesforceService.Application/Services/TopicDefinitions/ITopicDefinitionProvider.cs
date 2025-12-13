@@ -2,5 +2,6 @@
 
 public interface ITopicDefinitionProvider
 {
-    TopicDefinition? GetTopicDefinition(string topicName);
+    InboundTopicDefinition? GetBySalesforceTopic(string topicName);
+    OutboundTopicDefinition? GetByInternalTopic(string internalTopic);
 }
