@@ -3,6 +3,7 @@ using SalesforceService.Application.Commands;
 using SalesforceService.Application.Services.Interfaces;
 using SalesforceService.Application.Services.TopicDefinitions;
 using SalesforceService.Domain.Entities;
+using SalesforceService.Domain.Enums;
 
 namespace SalesforceService.Application.Services;
 
@@ -60,10 +61,10 @@ public class EventHandler : IEventHandler
             case "ContentModeratedDto":
                 var payload = new Dictionary<string, object?>
                 {
-                    ["RecordId__c"] = recordId,
+                    ["Case_Id__c"] = recordId,
                     ["Moderation_Result__c"] = result,
                     ["CreatedDate"] = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
-                    ["CreatedByID"] = "005dL00001TQ0MbQAL",
+                    ["CreatedById"] = "005dL00001TQ0MbQAL",
                     ["EventUuid"] = Guid.NewGuid(),
                 };
 
@@ -80,4 +81,3 @@ public class EventHandler : IEventHandler
 }
 
 internal record ContentSubmittedDto(string CorrelationId, string Content); // Move to Dtos folder
-public record ContentModeratedDto(string CorrelationId, string Result);

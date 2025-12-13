@@ -15,6 +15,7 @@ public static class DependencyInjection
         services.AddScoped<IRecordIdentificationHelper, RecordIdentificationHelper>();
         services.AddScoped<IEventCommand, EventCommand>();
         services.AddScoped<IEventHandler, EventHandler>();
+        services.AddScoped<IModerationResultHandler, ModerationResultHandler>();
 
         return services;
     }

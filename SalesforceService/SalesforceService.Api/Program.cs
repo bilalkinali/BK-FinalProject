@@ -5,6 +5,7 @@ using SalesforceService.Application.Services.Interfaces;
 using SalesforceService.Infrastructure;
 using SalesforceService.Infrastructure.Messaging.Inbound;
 using SalesforceService.Infrastructure.Messaging.Outbound;
+using SalesforceService.Infrastructure.Services.Schema;
 
 //using SalesforceService.Api.Schema;
 
@@ -51,6 +52,19 @@ var app = builder.Build();
 //// END TESTING
 
 
+using (var scope = app.Services.CreateScope())
+{
+    var schemaService = scope.ServiceProvider.GetRequiredService<ISalesforceSchemaService>();
+    var outboundTopics = builder.Configuration
+        .GetSection("Salesforce:OutboundTopics")
+        .Get<string[]>()!;
+    foreach (var topic in outboundTopics)
+    {
+        await schemaService.PreloadSchemaIdForTopicAsync(topic);
+    }
+}
+
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -86,7 +100,8 @@ app.MapPost("/salesforce/test-publish", async (
 });
 
 app.MapPost("/events/contentmoderated", async (
-    IEventCommand command,
+    IEventHandler handler,
+    IModerationResultHandler moderationResultHandler,
     ContentModeratedDto contentModeratedDto) =>
 {
     string topic = "content-moderated";
@@ -95,11 +110,8 @@ app.MapPost("/events/contentmoderated", async (
     Console.WriteLine($"CorrelationId: {contentModeratedDto.CorrelationId}");
     Console.WriteLine($"SuggestedAction: {contentModeratedDto.Result}");
 
-    await command.CreateOutboundEventAsync(
-        topic,
-        contentModeratedDto.CorrelationId,
-        contentModeratedDto.Result);
-    
+    await moderationResultHandler.HandleModerationResultAsync(topic, contentModeratedDto);
+
     return Results.Ok("Published test event to Salesforce.");
 }).WithTopic("pubsub","content-moderated");
 

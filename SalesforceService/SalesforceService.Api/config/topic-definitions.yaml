@@ -7,7 +7,7 @@ topicDefinitions:
       
   outbound:
     - internalTopic: "content-moderated"
-      salesforceTopic: "/event/Case_Moderated_Event__e"
+      salesforceTopic: "/event/Case_Moderation_Event__e"
       dtoType: "ContentModeratedDto"
       description: "Content has been moderated and the result is sent back to Salesforce."
       

@@ -76,7 +76,7 @@ public class EventCommand : IEventCommand
             await _unitOfWork.CommitAsync();
 
             // Publish external event
-            await _eventHandler.PublishOutboundEventAsync(topicName, outboundEvent.RecordId, outboundEvent.Result);
+            await _eventHandler.PublishOutboundEventAsync(topicName, outboundEvent.RecordId, result);
         }
         catch (Exception ex)
         {

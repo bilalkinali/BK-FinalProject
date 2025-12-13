@@ -59,7 +59,7 @@ public class SalesforceInboundSubscriber : BackgroundService, ISalesforceInbound
             return;
         }
 
-        var topics = _config.GetSection("Salesforce:IndboundTopics").Get<string[]>()!;
+        var topics = _config.GetSection("Salesforce:InboundTopics").Get<string[]>()!;
 
         var tasks = topics.Select(topic =>
             Task.Run(() => StartTopicSubscriptionAsync(topic, cancellationToken), cancellationToken)).ToArray();
