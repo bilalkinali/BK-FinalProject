@@ -25,4 +25,20 @@ public class SalesforceContext : DbContext
     //        entity.Property(e => e.CreatedAt).IsRequired();
     //    });
     //}
+
+    protected override void OnModelCreating(ModelBuilder modelbuilder)
+    {
+        modelbuilder.Entity<InboundEvent>(entity =>
+        {
+            entity.HasIndex(e => new { e.SalesforceTopic, e.ReplayId })
+                .IsUnique();
+        });
+
+        modelbuilder.Entity<OutboundEvent>(entity =>
+        {
+            entity.HasIndex(e => e.CorrelationId)
+                .IsUnique();
+        });
+
+    }
 }

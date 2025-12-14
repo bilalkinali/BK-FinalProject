@@ -1,9 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
-using SalesforceService.Application.Commands;
 using SalesforceService.Application.Services.Interfaces;
 using SalesforceService.Application.Services.TopicDefinitions;
-using SalesforceService.Domain.Entities;
-using SalesforceService.Domain.Enums;
 
 namespace SalesforceService.Application.Services;
 

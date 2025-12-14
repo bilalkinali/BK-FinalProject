@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using System.Data;
+using Microsoft.Extensions.Logging;
 using SalesforceService.Application.Helpers;
 using SalesforceService.Application.Services.Interfaces;
 using SalesforceService.Domain.Entities;
@@ -54,7 +55,6 @@ public class EventCommand : IEventCommand
                 salesforceTopic, replayId, recordId, objectType);
 
             await _unitOfWork.RollbackAsync();
-            throw;
         }
         
     }
@@ -82,7 +82,8 @@ public class EventCommand : IEventCommand
         {
             _logger.LogError(ex, "Error creating outbound event for CorrelationId: {CorrelationId}, Result: {Result}",
                 correlationId, result);
-            throw;
+
+            await _unitOfWork.RollbackAsync();
         }
     }
 }
