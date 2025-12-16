@@ -106,13 +106,13 @@ app.MapPost("/events/contentmoderated", async (
 {
     string topic = "content-moderated";
 
-    Console.WriteLine("Received test publish request.");
+    Console.WriteLine("Received moderated content.");
     Console.WriteLine($"CorrelationId: {contentModeratedDto.CorrelationId}");
     Console.WriteLine($"SuggestedAction: {contentModeratedDto.Result}");
 
     await moderationResultHandler.HandleModerationResultAsync(topic, contentModeratedDto);
 
-    return Results.Ok("Published test event to Salesforce.");
+    return Results.Ok("Published moderated content to Salesforce.");
 }).WithTopic("pubsub","content-moderated");
 
 
