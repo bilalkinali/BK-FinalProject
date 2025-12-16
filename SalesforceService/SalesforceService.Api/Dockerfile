@@ -5,7 +5,6 @@ FROM mcr.microsoft.com/dotnet/aspnet:9.0-alpine AS base
 USER $APP_UID
 WORKDIR /app
 EXPOSE 8080
-EXPOSE 8081
 
 
 # This stage is used to build the service project
@@ -15,6 +14,7 @@ WORKDIR /src
 COPY ["SalesforceService/SalesforceService.Api/SalesforceService.Api.csproj", "SalesforceService/SalesforceService.Api/"]
 COPY ["SalesforceService/SalesforceService.Application/SalesforceService.Application.csproj", "SalesforceService/SalesforceService.Application/"]
 COPY ["SalesforceService/SalesforceService.Domain/SalesforceService.Domain.csproj", "SalesforceService/SalesforceService.Domain/"]
+COPY ["SalesforceService/SalesforceService.DatabaseMigration/SalesforceService.DatabaseMigration.csproj", "SalesforceService/SalesforceService.DatabaseMigration/"]
 COPY ["SalesforceService/SalesforceService.Infrastructure/SalesforceService.Infrastructure.csproj", "SalesforceService/SalesforceService.Infrastructure/"]
 RUN dotnet restore "./SalesforceService/SalesforceService.Api/SalesforceService.Api.csproj"
 COPY . .
