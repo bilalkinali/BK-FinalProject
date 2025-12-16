@@ -61,8 +61,6 @@ public class RequestBuilder : IRequestBuilder
         {
             case MediaType.Text:
                 return new TextDetectionRequest(content);
-            case MediaType.Image:
-                return new ImageDetectionRequest(content);
             default:
                 throw new ArgumentException($"Invalid Media Type {mediaType}");
         }

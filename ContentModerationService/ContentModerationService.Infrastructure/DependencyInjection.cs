@@ -1,10 +1,13 @@
-﻿using ContentModerationService.Application.Configuration;
+﻿using ContentModerationService.Application;
+using ContentModerationService.Application.Configuration;
 using ContentModerationService.Application.Services;
-using ContentModerationService.Infrastructure.Helpers;
-using ContentModerationService.Infrastructure.ServiceProxyImpl;
 using ContentModerationService.Application.Services.ProxyInterface;
 using ContentModerationService.Infrastructure.Configuration;
+using ContentModerationService.Infrastructure.Helpers;
+using ContentModerationService.Infrastructure.Repositories;
+using ContentModerationService.Infrastructure.ServiceProxyImpl;
 using ContentModerationService.Infrastructure.Services;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -22,6 +25,18 @@ public static class DependencyInjection
         services.AddScoped<IAzureContentSafetyProxy, AzureContentSafetyProxy>();
         services.AddScoped<IContentDetection, ContentDetection>();
         services.AddScoped<IPublisherService, DaprPublisherService>();
+
+        // Database context
+        services.AddScoped<IModerationDecisionRepository, ModerationDecisionRepository>();
+
+        // Add-Migration InitialMigration -Context ContentModerationContext -Project ContentModerationService.DatabaseMigration
+        // Update-Database -Context ContentModerationContext -Project ContentModerationService.DatabaseMigration
+        services.AddDbContext<ContentModerationContext>(options =>
+            options.UseNpgsql(configuration.GetConnectionString("ContentModerationDbConnection"),
+                x => x.MigrationsAssembly("ContentModerationService.DatabaseMigration")));
+
+
+
         return services;
     }
 }

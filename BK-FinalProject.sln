@@ -36,6 +36,8 @@ Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-co
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SalesforceService.DatabaseMigration", "SalesforceService\SalesforceService.DatabaseMigration\SalesforceService.DatabaseMigration.csproj", "{42E2CC8A-36DD-41F6-BEFF-E97A2862A462}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ContentModerationService.DatabaseMigration", "ContentModerationService\ContentModerationService.DatabaseMigration\ContentModerationService.DatabaseMigration.csproj", "{E67AC5E3-7C39-4671-A36B-E64830A84BE7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -86,6 +88,10 @@ Global
 		{42E2CC8A-36DD-41F6-BEFF-E97A2862A462}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{42E2CC8A-36DD-41F6-BEFF-E97A2862A462}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{42E2CC8A-36DD-41F6-BEFF-E97A2862A462}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E67AC5E3-7C39-4671-A36B-E64830A84BE7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E67AC5E3-7C39-4671-A36B-E64830A84BE7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E67AC5E3-7C39-4671-A36B-E64830A84BE7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E67AC5E3-7C39-4671-A36B-E64830A84BE7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -102,6 +108,7 @@ Global
 		{867B6E05-DFD0-46D8-8624-8B7A46C20ADC} = {2E78EF7C-DA32-42D0-8FAD-9ABA2B362FBF}
 		{CA50682A-6C2B-4501-B868-34ABDC633D6D} = {90B1B96F-9BA5-4DB5-8D78-4661D33FA9BD}
 		{42E2CC8A-36DD-41F6-BEFF-E97A2862A462} = {90B1B96F-9BA5-4DB5-8D78-4661D33FA9BD}
+		{E67AC5E3-7C39-4671-A36B-E64830A84BE7} = {2E78EF7C-DA32-42D0-8FAD-9ABA2B362FBF}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0E50BAFA-530D-4006-942A-9F313B743425}
