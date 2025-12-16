@@ -55,7 +55,6 @@ public class AzureContentSafetyProxy : IAzureContentSafetyProxy
             case MediaType.Text:
                 return JsonSerializer.Deserialize<TextDetectionResult>(json, _options);
             case MediaType.Image:
-                return JsonSerializer.Deserialize<ImageDetectionResult>(json, _options);
             default:
                 throw new ArgumentException($"Invalid Media Type {mediaType}");
         }

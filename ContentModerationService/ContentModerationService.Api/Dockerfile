@@ -5,7 +5,6 @@ FROM mcr.microsoft.com/dotnet/aspnet:9.0-alpine AS base
 USER $APP_UID
 WORKDIR /app
 EXPOSE 8080
-EXPOSE 8081
 
 
 # This stage is used to build the service project
@@ -15,6 +14,7 @@ WORKDIR /src
 COPY ["ContentModerationService/ContentModerationService.Api/ContentModerationService.Api.csproj", "ContentModerationService/ContentModerationService.Api/"]
 COPY ["ContentModerationService/ContentModerationService.Application/ContentModerationService.Application.csproj", "ContentModerationService/ContentModerationService.Application/"]
 COPY ["ContentModerationService/ContentModerationService.Domain/ContentModerationService.Domain.csproj", "ContentModerationService/ContentModerationService.Domain/"]
+COPY ["ContentModerationService/ContentModerationService.DatabaseMigration/ContentModerationService.DatabaseMigration.csproj", "ContentModerationService/ContentModerationService.DatabaseMigration/"]
 COPY ["ContentModerationService/ContentModerationService.Infrastructure/ContentModerationService.Infrastructure.csproj", "ContentModerationService/ContentModerationService.Infrastructure/"]
 RUN dotnet restore "./ContentModerationService/ContentModerationService.Api/ContentModerationService.Api.csproj"
 COPY . .

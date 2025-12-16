@@ -6,7 +6,7 @@ public class InboundEvent : DomainEntity
     {
     }
 
-    public InboundEvent(string salesforceTopic, string replayId, string recordId, string objectType)
+    private InboundEvent(string salesforceTopic, string replayId, string recordId, string objectType)
     {
         CorrelationId = Guid.NewGuid().ToString();
         SalesforceTopic = salesforceTopic;

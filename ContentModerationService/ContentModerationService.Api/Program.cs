@@ -56,20 +56,22 @@ app.MapPost("/events/contentmoderation",
 {
     try
     {
-        logger.LogInformation("Event received for content moderation:\n" +
-                          "EventId: {Id}\n" +
-                          "Content: {Content}", payload.CorrelationId, payload.Content);
+        logger.LogInformation(
+            "Event received for content moderation:\n" +
+            "EventId: {Id}\n" +
+            "Content: {Content}", payload.CorrelationId, payload.Content);
 
-        await command.ModerateContentAsync(MediaType.Text, payload.CorrelationId, payload.Content);
-        // Publish
-
+        await command.ModerateContentAsync(
+            MediaType.Text, 
+            payload.CorrelationId, 
+            payload.Content);
 
         return Results.Created();
     }
     catch (Exception ex)
     {
-        Console.WriteLine(ex.Message);
-        return Results.Problem(ex.Message);
+        logger.LogError(ex, "Error processing content moderation for EventId: {Id}", payload.CorrelationId);
+        return Results.Problem("Content moderation failed");
     }
 }).WithTopic("pubsub", "content-submitted");
 

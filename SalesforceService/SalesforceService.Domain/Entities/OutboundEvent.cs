@@ -6,7 +6,7 @@ public class OutboundEvent : DomainEntity
     {
     }
 
-    public OutboundEvent(string correlationId, string internalTopic, string recordId, string result)
+    private OutboundEvent(string correlationId, string internalTopic, string recordId, string result)
     {
         CorrelationId = correlationId;
         InternalTopic = internalTopic;

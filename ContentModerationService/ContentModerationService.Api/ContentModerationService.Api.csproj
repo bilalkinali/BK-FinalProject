@@ -13,11 +13,13 @@
   <ItemGroup>
 	  <PackageReference Include="Dapr.AspNetCore" Version="1.15.4" />
 	  <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.10" />
+	  <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.4" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.23.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\ContentModerationService.Application\ContentModerationService.Application.csproj" />
+    <ProjectReference Include="..\ContentModerationService.DatabaseMigration\ContentModerationService.DatabaseMigration.csproj" />
     <ProjectReference Include="..\ContentModerationService.Domain\ContentModerationService.Domain.csproj" />
     <ProjectReference Include="..\ContentModerationService.Infrastructure\ContentModerationService.Infrastructure.csproj" />
   </ItemGroup>
