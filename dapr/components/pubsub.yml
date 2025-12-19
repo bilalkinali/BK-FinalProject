@@ -14,7 +14,7 @@ spec:
     value: false
   - name: autoAck
     value: false
-  - name: prepetchCount
+  - name: prefetchCount
     value: 50
   - name: reconnectWait
     value: 5

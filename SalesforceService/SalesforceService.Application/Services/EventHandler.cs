@@ -22,6 +22,7 @@ public class EventHandler : IEventHandler
         _salesforcePublisherService = salesforcePublisherService;
         _logger = logger;
     }
+
     async Task IEventHandler.PublishInboundEventAsync(string salesforceTopic, string correlationId, Dictionary<string, object?> fields)
     {
         var topicDefinition = _topicDefinitionProvider.GetBySalesforceTopic(salesforceTopic)
