@@ -1,5 +1,5 @@
-﻿using System.Data;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
+using SalesforceService.Application.Exceptions;
 using SalesforceService.Application.Helpers;
 using SalesforceService.Application.Services.Interfaces;
 using SalesforceService.Domain.Entities;
@@ -49,12 +49,15 @@ public class EventCommand : IEventCommand
             // Publish internal event
             await _eventHandler.PublishInboundEventAsync(salesforceTopic, inboundEvent.CorrelationId, fields);
         }
+        catch (DuplicateEventException)
+        {
+            _logger.LogInformation("Event already processed for topic {SalesforceTopic} with replayId: {ReplayId}", salesforceTopic, replayId);
+        }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error creating inbound event for Topic: {SalesforceTopic}, ReplayId: {ReplayId}, RecordId: {RecordId}, ObjectType: {ObjectType}",
                 salesforceTopic, replayId, recordId, objectType);
-
-            await _unitOfWork.RollbackAsync();
+            throw;
         }
         
     }
@@ -78,12 +81,15 @@ public class EventCommand : IEventCommand
             // Publish external event
             await _eventHandler.PublishOutboundEventAsync(topicName, outboundEvent.RecordId, result);
         }
+        catch (DuplicateEventException)
+        {
+            _logger.LogInformation("Event already processed for topic {InternalTopic} with correlationId: {CorrelationId}", topicName, correlationId);
+        }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error creating outbound event for CorrelationId: {CorrelationId}, Result: {Result}",
                 correlationId, result);
-
-            await _unitOfWork.RollbackAsync();
+            throw;
         }
     }
 }
