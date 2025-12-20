@@ -19,6 +19,8 @@ public static class DbExceptionTranslator
     private static bool IsUniqueConstraintViolation(DbUpdateException ex)
     {
         // Postgres unique constraint violation code
+        // https://www.postgresql.org/docs/current/errcodes-appendix.html
+        // https://learn.microsoft.com/en-us/dotnet/api/microsoft.entityframeworkcore.dbupdateexception?view=efcore-10.0
         if (ex.InnerException is PostgresException { SqlState: "23505" }) 
             return true;
 
