@@ -2,6 +2,8 @@
 using System.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
+using SalesforceService.Application.Exceptions;
+using SalesforceService.Infrastructure.Persistence;
 
 namespace SalesforceService.Infrastructure;
 
@@ -29,6 +31,18 @@ public class UnitOfWork<T> : IUnitOfWork where T : DbContext
         {
             await _db.SaveChangesAsync();
             await _transaction.CommitAsync();
+        }
+        // Exception for unique constraint violations
+        catch (DbUpdateException ex)
+        {
+            var exception = DbExceptionTranslator.Translate(ex);
+
+            if (exception is not DuplicateEventException)
+            {
+                await _transaction.RollbackAsync();
+            }
+
+            throw exception;
         }
         catch (Exception)
         {
