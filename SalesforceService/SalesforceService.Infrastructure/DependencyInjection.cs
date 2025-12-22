@@ -59,7 +59,7 @@ public static class DependencyInjection
         // Add-Migration InitialMigration -Context SalesforceContext -Project SalesforceService.DatabaseMigration
         // Update-Database -Context SalesforceContext -Project SalesforceService.DatabaseMigration
         services.AddDbContext<SalesforceContext>(options =>
-            options.UseNpgsql(config.GetConnectionString("SalesforceDbConnection"),
+            options.UseNpgsql(config.GetConnectionString("Default"),
                 x => x.MigrationsAssembly("SalesforceService.DatabaseMigration")));
 
         return services;
