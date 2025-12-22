@@ -32,7 +32,7 @@ public static class DependencyInjection
         // Add-Migration InitialMigration -Context ContentModerationContext -Project ContentModerationService.DatabaseMigration
         // Update-Database -Context ContentModerationContext -Project ContentModerationService.DatabaseMigration
         services.AddDbContext<ContentModerationContext>(options =>
-            options.UseNpgsql(configuration.GetConnectionString("ContentModerationDbConnection"),
+            options.UseNpgsql(configuration.GetConnectionString("Default"),
                 x => x.MigrationsAssembly("ContentModerationService.DatabaseMigration")));
 
 
