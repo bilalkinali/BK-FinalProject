@@ -8,11 +8,11 @@ var builder = WebApplication.CreateBuilder(args);
 
 await OracleVaultSecretLoader.LoadAsync(
     builder.Configuration, 
-    new[] // Dictionary entries (ConfigKey, SecretOcid)
+    new[] // Dictionary entries (ConfigKey, SecretName)
     {
         (
             "ConnectionStrings:Default",
-            "ocid1.vaultsecret.oc1.eu-frankfurt-1.amaaaaaalhxah2yab2qfdzh2w7f67mqzdylsif3zoucgrsvemdulmf3e4haq"
+            "contentmoderation-db-connection"
         )
     });
 
