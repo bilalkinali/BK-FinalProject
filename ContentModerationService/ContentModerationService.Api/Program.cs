@@ -6,16 +6,6 @@ using Action = ContentModerationService.Domain.Enums.Action;
 
 var builder = WebApplication.CreateBuilder(args);
 
-await OracleVaultSecretLoader.LoadAsync(
-    builder.Configuration, 
-    new[] // Dictionary entries (ConfigKey, SecretName)
-    {
-        (
-            "ConnectionStrings:Default",
-            "contentmoderation-db-connection"
-        )
-    });
-
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
