@@ -1,5 +1,4 @@
 using SalesforceService.Application;
-using SalesforceService.Application.Commands;
 using SalesforceService.Application.Services;
 using SalesforceService.Application.Services.Interfaces;
 using SalesforceService.Infrastructure;

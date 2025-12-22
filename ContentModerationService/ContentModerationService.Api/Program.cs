@@ -6,6 +6,16 @@ using Action = ContentModerationService.Domain.Enums.Action;
 
 var builder = WebApplication.CreateBuilder(args);
 
+await OracleVaultSecretLoader.LoadAsync(
+    builder.Configuration, 
+    new[] // Dictionary entries (ConfigKey, SecretOcid)
+    {
+        (
+            "ConnectionStrings:Default",
+            "ocid1.vault.oc1.eu-frankfurt-1.enuus7fkaaag6.abtheljsjwjrmefowdmggafbmncmqxwmxbdijm3khz3rlvyhzynsgjwaadiq"
+        )
+    });
+
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
