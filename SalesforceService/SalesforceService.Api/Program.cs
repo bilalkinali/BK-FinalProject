@@ -105,6 +105,11 @@ app.MapPost("/events/contentmoderated", async (
 {
     var topic = request.Headers["ce-topic"].ToString();
 
+    if (string.IsNullOrEmpty(topic))
+    {
+        throw new InvalidOperationException("Missing CloudEvent 'subject' or 'topic' header.");
+    }
+
     Console.WriteLine("Received content moderation event");
     Console.WriteLine($"Topic: {topic}");
     Console.WriteLine($"CorrelationId: {contentModeratedDto.CorrelationId}");
