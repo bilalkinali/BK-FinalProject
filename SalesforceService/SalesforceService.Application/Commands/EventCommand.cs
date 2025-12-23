@@ -2,6 +2,7 @@
 using SalesforceService.Application.Exceptions;
 using SalesforceService.Application.Helpers;
 using SalesforceService.Application.Services.Interfaces;
+using SalesforceService.Application.Services.TopicDefinitions;
 using SalesforceService.Domain.Entities;
 
 namespace SalesforceService.Application.Commands;
@@ -9,6 +10,7 @@ namespace SalesforceService.Application.Commands;
 public class EventCommand : IEventCommand
 {
     private readonly IRecordIdentificationHelper _idHelper;
+    private readonly ITopicDefinitionProvider _topicDefinitionProvider;
     private readonly IEventHandler _eventHandler;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IEventRepository _eventRepository;
@@ -16,12 +18,14 @@ public class EventCommand : IEventCommand
 
     public EventCommand(
         IRecordIdentificationHelper idHelper,
+        ITopicDefinitionProvider topicDefinitionProvider,
         IEventHandler eventHandler,
         IUnitOfWork unitOfWork,
         IEventRepository eventRepository,
         ILogger<EventCommand> logger)
     {
         _idHelper = idHelper;
+        _topicDefinitionProvider = topicDefinitionProvider;
         _eventHandler = eventHandler;
         _unitOfWork = unitOfWork;
         _eventRepository = eventRepository;
@@ -62,8 +66,14 @@ public class EventCommand : IEventCommand
         
     }
 
-    async Task IEventCommand.CreateOutboundEventAsync(string topicName, string correlationId, string result)
+    async Task IEventCommand.CreateOutboundEventAsync(string internalTopic, string correlationId, string result)
     {
+        // Map
+        var outboundDef = _topicDefinitionProvider.GetByInternalTopic(internalTopic)
+                          ?? throw new InvalidOperationException($"Unknown internal topic: {internalTopic}");
+
+        var salesforceTopic = outboundDef.SalesforceTopic;
+
         try
         {
             await _unitOfWork.BeginTransactionAsync();
@@ -72,18 +82,18 @@ public class EventCommand : IEventCommand
             var inboundEvent = await _eventRepository.GetInboundEventByCorrelationIdAsync(correlationId);
 
             // Do
-            var outboundEvent = OutboundEvent.Create(correlationId, topicName, inboundEvent.RecordId, result);
+            var outboundEvent = OutboundEvent.Create(correlationId, salesforceTopic, inboundEvent.RecordId, result);
 
             // Save
             await _eventRepository.AddOutboundEventAsync(outboundEvent);
             await _unitOfWork.CommitAsync();
 
             // Publish external event
-            await _eventHandler.PublishOutboundEventAsync(topicName, outboundEvent.RecordId, result);
+            await _eventHandler.PublishOutboundEventAsync(salesforceTopic, outboundEvent.RecordId, result);
         }
         catch (DuplicateEventException)
         {
-            _logger.LogInformation("Event already processed for topic {InternalTopic} with correlationId: {CorrelationId}", topicName, correlationId);
+            _logger.LogInformation("Event already processed for topic {SalesforceTopic} with correlationId: {CorrelationId}", salesforceTopic, correlationId);
         }
         catch (Exception ex)
         {

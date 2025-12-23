@@ -98,18 +98,12 @@ app.MapPost("/salesforce/test-publish", async (
     return Results.Ok("Published test event to Salesforce.");
 });
 
+
 app.MapPost("/events/contentmoderated", async (
-    HttpRequest request,
     IModerationResultHandler moderationResultHandler,
     ContentModeratedDto contentModeratedDto) =>
 {
-    var topic = request.Headers["ce-topic"].ToString();
-
-    if (string.IsNullOrEmpty(topic))
-    {
-        throw new InvalidOperationException("Missing CloudEvent 'subject' or 'topic' header.");
-    }
-
+    var topic = "content-moderated";
     Console.WriteLine("Received content moderation event");
     Console.WriteLine($"Topic: {topic}");
     Console.WriteLine($"CorrelationId: {contentModeratedDto.CorrelationId}");
@@ -118,9 +112,24 @@ app.MapPost("/events/contentmoderated", async (
     await moderationResultHandler.HandleModerationResultAsync(topic, contentModeratedDto);
 
     return Results.Ok();
-})
-    .WithTopic("pubsub","content-moderated")
-    .WithTopic("pubsub", "content-moderation-failed");
+}).WithTopic("pubsub","content-moderated");
+
+
+
+app.MapPost("/events/contentmoderationfailed", async (
+        IModerationResultHandler moderationResultHandler,
+        ContentModeratedDto contentModeratedDto) =>
+    {
+        var topic = "content-moderation-failed";
+        Console.WriteLine("Received content moderation failed event");
+        Console.WriteLine($"Topic: {topic}");
+        Console.WriteLine($"CorrelationId: {contentModeratedDto.CorrelationId}");
+        Console.WriteLine($"Result: {contentModeratedDto.Result}");
+
+        await moderationResultHandler.HandleModerationResultAsync(topic, contentModeratedDto);
+
+        return Results.Ok();
+    }).WithTopic("pubsub", "content-moderation-failed");
 
 
 app.Run();
