@@ -3,5 +3,6 @@
 public enum Action
 {
     Accept = 0,
-    Reject = 1
+    Reject = 1,
+    Failed = 2
 }

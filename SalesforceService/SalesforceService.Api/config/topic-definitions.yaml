@@ -10,4 +10,9 @@ topicDefinitions:
       salesforceTopic: "/event/Case_Moderation_Event__e"
       dtoType: "ContentModeratedDto"
       description: "Content has been moderated and the result is sent back to Salesforce."
+
+    - internalTopic: "content-moderation-failed"
+      salesforceTopic: "/event/Case_Moderation_Event__e"
+      dtoType: "ContentModeratedDto"
+      description: "Content could not be moderated and the failed result is sent back to Salesforce."
       

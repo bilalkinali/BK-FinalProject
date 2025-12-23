@@ -99,20 +99,23 @@ app.MapPost("/salesforce/test-publish", async (
 });
 
 app.MapPost("/events/contentmoderated", async (
-    IEventHandler handler,
+    HttpRequest request,
     IModerationResultHandler moderationResultHandler,
     ContentModeratedDto contentModeratedDto) =>
 {
-    string topic = "content-moderated";
+    var topic = request.Headers["ce-topic"].ToString();
 
-    Console.WriteLine("Received moderated content.");
+    Console.WriteLine("Received content moderation event");
+    Console.WriteLine($"Topic: {topic}");
     Console.WriteLine($"CorrelationId: {contentModeratedDto.CorrelationId}");
-    Console.WriteLine($"SuggestedAction: {contentModeratedDto.Result}");
+    Console.WriteLine($"Result: {contentModeratedDto.Result}");
 
     await moderationResultHandler.HandleModerationResultAsync(topic, contentModeratedDto);
 
-    return Results.Ok("Published moderated content to Salesforce.");
-}).WithTopic("pubsub","content-moderated");
+    return Results.Ok();
+})
+    .WithTopic("pubsub","content-moderated")
+    .WithTopic("pubsub", "content-moderation-failed");
 
 
 app.Run();

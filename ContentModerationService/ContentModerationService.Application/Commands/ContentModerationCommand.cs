@@ -4,6 +4,7 @@ using ContentModerationService.Application.Services.ProxyInterface;
 using ContentModerationService.Domain;
 using ContentModerationService.Domain.Entity;
 using ContentModerationService.Domain.Enums;
+using Action = ContentModerationService.Domain.Enums.Action;
 
 namespace ContentModerationService.Application.Commands;
 
@@ -30,28 +31,37 @@ public class ContentModerationCommand : IContentModerationCommand
     }
     async Task IContentModerationCommand.ModerateContentAsync(MediaType mediaType, string correlationId, string content)
     {
-        // Detect / analyze content
-        var detectionResult = await _contentDetection.ContentDetectionAsync(mediaType, content);
+        try
+        {
+            // Detect / analyze content
+            var detectionResult = await _contentDetection.ContentDetectionAsync(mediaType, content);
 
-        // Load the rejection thresholds settings
-        var rejectionThresholds = _rejectionDetectionProvider.GetRejectionThresholds();
+            // Load the rejection thresholds settings
+            var rejectionThresholds = _rejectionDetectionProvider.GetRejectionThresholds();
 
-        // Make decision based on detection results and thresholds
-        var decisionResult = _decisionService.MakeDecision(detectionResult, rejectionThresholds);
+            // Make decision based on detection results and thresholds
+            var decisionResult = _decisionService.MakeDecision(detectionResult, rejectionThresholds);
 
-        // Save decision result
-        var severities = ConvertToDictionary(detectionResult.CategoriesAnalysis!);
+            // Save decision result
+            var severities = ConvertToDictionary(detectionResult.CategoriesAnalysis!);
 
-        var moderationDecision = ModerationDecision.Create(
-            correlationId, 
-            content, 
-            decisionResult.SuggestedAction, 
-            severities);
+            var moderationDecision = ModerationDecision.Create(
+                correlationId,
+                content,
+                decisionResult.SuggestedAction,
+                severities);
 
-        await _moderationDecisionRepository.AddModerationDecisionAsync(moderationDecision);
+            await _moderationDecisionRepository.AddModerationDecisionAsync(moderationDecision);
 
-        // Publish decision result
-        await _eventHandler.ContentModeratedAsync(correlationId, decisionResult.SuggestedAction);
+            // Publish decision result
+            await _eventHandler.ContentModeratedAsync(correlationId, decisionResult.SuggestedAction);
+        }
+        catch (HttpRequestException)
+        {
+            // Publish moderation failed - external service is unavailable
+            await _eventHandler.ContentModeratedAsync(correlationId, Action.Failed);
+            throw;
+        }
     }
 
     private Dictionary<Category, int?> ConvertToDictionary(List<CategoriesAnalysis> categories)
