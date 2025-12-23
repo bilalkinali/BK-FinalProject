@@ -89,7 +89,7 @@ public class EventCommand : IEventCommand
             await _unitOfWork.CommitAsync();
 
             // Publish external event
-            await _eventHandler.PublishOutboundEventAsync(salesforceTopic, outboundEvent.RecordId, result);
+            await _eventHandler.PublishOutboundEventAsync(internalTopic, outboundEvent.RecordId, result);
         }
         catch (DuplicateEventException)
         {
