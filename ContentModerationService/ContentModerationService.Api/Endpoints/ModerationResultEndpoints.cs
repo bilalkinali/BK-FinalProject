@@ -9,7 +9,8 @@ public static class ModerationResultEndpoints
         const string tag = "Moderation Result";
 
         // Query Endpoints
-        app.MapGet("/api/moderationresults", async (IModerationResultQuery query) =>
+        app.MapGet("/api/moderationresults", 
+            async (IModerationResultQuery query) =>
             {
                 try
                 {

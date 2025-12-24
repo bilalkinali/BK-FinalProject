@@ -4,10 +4,13 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SalesforceService.Application;
+using SalesforceService.Application.Queries;
 using SalesforceService.Application.Services.Interfaces;
 using SalesforceService.Application.Services.TopicDefinitions;
 using SalesforceService.Infrastructure.Auth;
+using SalesforceService.Infrastructure.Helpers;
 using SalesforceService.Infrastructure.Messaging.Outbound;
+using SalesforceService.Infrastructure.Queries;
 using SalesforceService.Infrastructure.Repositories;
 using SalesforceService.Infrastructure.Services;
 using SalesforceService.Infrastructure.Services.Schema;
@@ -55,6 +58,10 @@ public static class DependencyInjection
         // Database context
         services.AddScoped<IEventRepository, EventRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork<SalesforceContext>>();
+
+        // Queries
+        services.AddScoped<IEventQuery, EventQuery>();
+        services.AddScoped<IEventQueryMapper, EventQueryMapper>();
 
         // Add-Migration InitialMigration -Context SalesforceContext -Project SalesforceService.DatabaseMigration
         // Update-Database -Context SalesforceContext -Project SalesforceService.DatabaseMigration
