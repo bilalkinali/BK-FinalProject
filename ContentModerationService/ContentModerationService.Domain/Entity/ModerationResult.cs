@@ -3,13 +3,13 @@ using Action = ContentModerationService.Domain.Enums.Action;
 
 namespace ContentModerationService.Domain.Entity;
 
-public class ModerationDecision
+public class ModerationResult
 {
-    protected ModerationDecision()
+    protected ModerationResult()
     {
     }
 
-    private ModerationDecision(string correlationId, string content, Action suggestedAction, int? hate, int? selfHarm, int? sexual, int? violence)
+    private ModerationResult(string correlationId, string content, Action suggestedAction, int? hate, int? selfHarm, int? sexual, int? violence)
     {
         CorrelationId = correlationId;
         Content = content;
@@ -31,9 +31,9 @@ public class ModerationDecision
     public int? Violence { get; protected set; }
     public DateTime CreatedAt { get; protected set; }
 
-    public static ModerationDecision Create(string correlationId, string content, Action suggestedAction, Dictionary<Category, int?> severities)
+    public static ModerationResult Create(string correlationId, string content, Action suggestedAction, Dictionary<Category, int?> severities)
     {
-        return new ModerationDecision(
+        return new ModerationResult(
             correlationId,
             content, 
             suggestedAction, 

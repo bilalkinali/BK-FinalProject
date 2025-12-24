@@ -1,9 +1,11 @@
 ﻿using ContentModerationService.Application;
 using ContentModerationService.Application.Configuration;
+using ContentModerationService.Application.Queries;
 using ContentModerationService.Application.Services;
 using ContentModerationService.Application.Services.ProxyInterface;
 using ContentModerationService.Infrastructure.Configuration;
 using ContentModerationService.Infrastructure.Helpers;
+using ContentModerationService.Infrastructure.Queries;
 using ContentModerationService.Infrastructure.Repositories;
 using ContentModerationService.Infrastructure.ServiceProxyImpl;
 using ContentModerationService.Infrastructure.Services;
@@ -25,9 +27,11 @@ public static class DependencyInjection
         services.AddScoped<IAzureContentSafetyProxy, AzureContentSafetyProxy>();
         services.AddScoped<IContentDetection, ContentDetection>();
         services.AddScoped<IPublisherService, DaprPublisherService>();
+        services.AddScoped<IModerationResultQuery, ModerationResultQuery>();
+        services.AddScoped<IModerationResultMapper, ModerationResultMapper>();
 
         // Database context
-        services.AddScoped<IModerationDecisionRepository, ModerationDecisionRepository>();
+        services.AddScoped<IModerationResultRepository, ModerationResultRepository>();
 
         // Add-Migration InitialMigration -Context ContentModerationContext -Project ContentModerationService.DatabaseMigration
         // Update-Database -Context ContentModerationContext -Project ContentModerationService.DatabaseMigration

@@ -14,20 +14,20 @@ public class ContentModerationCommand : IContentModerationCommand
     private readonly IDecisionService _decisionService;
     private readonly IRejectionThresholdProvider _rejectionDetectionProvider;
     private readonly IEventHandler _eventHandler;
-    private readonly IModerationDecisionRepository _moderationDecisionRepository;
+    private readonly IModerationResultRepository _moderationResultRepository;
 
     public ContentModerationCommand(
         IContentDetection contentDetection,
         IDecisionService decisionService,
         IRejectionThresholdProvider rejectionDetectionProvider,
         IEventHandler eventHandler,
-        IModerationDecisionRepository moderationDecisionRepository)
+        IModerationResultRepository moderationResultRepository)
     {
         _contentDetection = contentDetection;
         _decisionService = decisionService;
         _rejectionDetectionProvider = rejectionDetectionProvider;
         _eventHandler = eventHandler;
-        _moderationDecisionRepository = moderationDecisionRepository;
+        _moderationResultRepository = moderationResultRepository;
     }
     async Task IContentModerationCommand.ModerateContentAsync(MediaType mediaType, string correlationId, string content)
     {
@@ -45,13 +45,13 @@ public class ContentModerationCommand : IContentModerationCommand
             // Save decision result
             var severities = ConvertToDictionary(detectionResult.CategoriesAnalysis!);
 
-            var moderationDecision = ModerationDecision.Create(
+            var moderationResult = ModerationResult.Create(
                 correlationId,
                 content,
                 decisionResult.SuggestedAction,
                 severities);
 
-            await _moderationDecisionRepository.AddModerationDecisionAsync(moderationDecision);
+            await _moderationResultRepository.AddModerationResultAsync(moderationResult);
 
             // Publish decision result
             await _eventHandler.ContentModeratedAsync(correlationId, decisionResult.SuggestedAction);

@@ -9,11 +9,11 @@ public class ContentModerationContext : DbContext
     {
     }
 
-    public DbSet<ModerationDecision> ModerationDecisions { get; set; }
+    public DbSet<ModerationResult> ModerationResults { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<ModerationDecision>(entity =>
+        modelBuilder.Entity<ModerationResult>(entity =>
         {
             entity.HasIndex(e => e.CorrelationId).IsUnique();
         });
