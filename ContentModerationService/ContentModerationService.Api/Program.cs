@@ -1,7 +1,6 @@
+using ContentModerationService.Api.Endpoints;
 using ContentModerationService.Application;
 using ContentModerationService.Infrastructure;
-using ContentModerationService.Application.Commands;
-using ContentModerationService.Domain.Enums;
 using Action = ContentModerationService.Domain.Enums.Action;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -30,7 +29,7 @@ app.MapSubscribeHandler();
 
 //app.UseHttpsRedirection();
 
-
+// Testing
 app.MapGet("/test", () => "Hello World! - From Content Moderation Service");
 
 
@@ -49,31 +48,10 @@ app.MapPost("/moderation", (ILogger<Program> logger, ContentModerationDto payloa
         return new ContentModeratedDto(CorrelationId: payload.CorrelationId, Result: Action.Accept);
     });
 
-app.MapPost("/events/contentmoderation", 
-    async (ILogger<Program> logger,
-        ContentModerationDto payload,
-        IContentModerationCommand command) =>
-{
-    try
-    {
-        logger.LogInformation(
-            "Event received for content moderation:\n" +
-            "EventId: {Id}\n" +
-            "Content: {Content}", payload.CorrelationId, payload.Content);
 
-        await command.ModerateContentAsync(
-            MediaType.Text, 
-            payload.CorrelationId, 
-            payload.Content);
+app.MapEventEndpoints();
+app.MapModerationResultEndpoints();
 
-        return Results.Created();
-    }
-    catch (Exception ex)
-    {
-        logger.LogError(ex, "Error processing content moderation for EventId: {Id}", payload.CorrelationId);
-        return Results.Problem("Content moderation failed");
-    }
-}).WithTopic("pubsub", "content-submitted");
 
 app.Run();
 
