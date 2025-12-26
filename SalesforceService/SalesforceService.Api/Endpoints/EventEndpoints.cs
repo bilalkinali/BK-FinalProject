@@ -11,7 +11,7 @@ public static class EventEndpoints
 
         // Event Endpoints
         events.MapPost("/contentmoderated", async (
-            IModerationResultHandler moderationResultHandler,
+            IModerationResultHandler handler,
             ContentModeratedDto contentModeratedDto) =>
         {
             var topic = "content-moderated";
@@ -20,7 +20,7 @@ public static class EventEndpoints
             Console.WriteLine($"CorrelationId: {contentModeratedDto.CorrelationId}");
             Console.WriteLine($"Result: {contentModeratedDto.Result}");
 
-            await moderationResultHandler.HandleModerationResultAsync(topic, contentModeratedDto);
+            await handler.HandleModerationResultAsync(topic, contentModeratedDto);
 
             return Results.Ok();
         }).WithTopic("pubsub", "content-moderated");
@@ -28,7 +28,7 @@ public static class EventEndpoints
 
 
         events.MapPost("/contentmoderationfailed", async (
-            IModerationResultHandler moderationResultHandler,
+            IModerationResultHandler handler,
             ContentModeratedDto contentModeratedDto) =>
         {
             var topic = "content-moderation-failed";
@@ -37,7 +37,7 @@ public static class EventEndpoints
             Console.WriteLine($"CorrelationId: {contentModeratedDto.CorrelationId}");
             Console.WriteLine($"Result: {contentModeratedDto.Result}");
 
-            await moderationResultHandler.HandleModerationResultAsync(topic, contentModeratedDto);
+            await handler.HandleModerationResultAsync(topic, contentModeratedDto);
 
             return Results.Ok();
         }).WithTopic("pubsub", "content-moderation-failed");
