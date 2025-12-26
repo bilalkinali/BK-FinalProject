@@ -10,7 +10,7 @@ public static class EventEndpoints
         var events = app.MapGroup("/events");
 
         // Event Endpoints
-        events.MapPost("/events/contentmoderated", async (
+        events.MapPost("/contentmoderated", async (
             IModerationResultHandler moderationResultHandler,
             ContentModeratedDto contentModeratedDto) =>
         {
@@ -27,7 +27,7 @@ public static class EventEndpoints
 
 
 
-        events.MapPost("/events/contentmoderationfailed", async (
+        events.MapPost("/contentmoderationfailed", async (
             IModerationResultHandler moderationResultHandler,
             ContentModeratedDto contentModeratedDto) =>
         {
