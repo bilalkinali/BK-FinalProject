@@ -19,7 +19,7 @@ jobs:
     - name: Build & Push Gateway
       run: |
         docker build \
-          -t bilalkinali/gateway-api:latest \
+          -t bilalkinali/gatewayfinal-api:latest \
           -f Gateway/Gateway.Api/Dockerfile \
           .
         docker push bilalkinali/gatewayfinal-api:latest
