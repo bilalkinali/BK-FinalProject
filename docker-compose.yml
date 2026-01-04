@@ -1,6 +1,6 @@
 services:
-  gateway-api:
-    image: ${DOCKER_REGISTRY-}gatewayapi
+  gatewayfinal-api:
+    image: ${DOCKER_REGISTRY-}gatewayfinalapi
     build:
       context: .
       dockerfile: Gateway/Gateway.Api/Dockerfile
