@@ -9,6 +9,7 @@ using SalesforceService.Application.Services.Interfaces;
 using SalesforceService.Application.Services.TopicDefinitions;
 using SalesforceService.Infrastructure.Auth;
 using SalesforceService.Infrastructure.Helpers;
+using SalesforceService.Infrastructure.Messaging.Inbound;
 using SalesforceService.Infrastructure.Messaging.Outbound;
 using SalesforceService.Infrastructure.Queries;
 using SalesforceService.Infrastructure.Repositories;
@@ -42,6 +43,9 @@ public static class DependencyInjection
             var channel = sp.GetRequiredService<GrpcChannel>();
             return new PubSub.PubSubClient(channel);
         });
+
+        // Background subscriber service
+        services.AddHostedService<SalesforceInboundSubscriber>();
 
         // Publisher services
         services.AddScoped<IPublisherService, DaprPublisherService>();

@@ -25,12 +25,9 @@ Console.WriteLine(path);
 // Load Salesforce settings from YAML
 builder.Configuration.AddYamlFile(path, optional: false);
 
+// Dependency Injection
 builder.Services.AddInfrastructureServices(builder.Configuration);
 builder.Services.AddApplicationServices();
-
-// Background subscriber service
-builder.Services.AddHostedService<SalesforceInboundSubscriber>();
-builder.Services.AddScoped<SalesforceOutboundPublisher>(); // Use interface
 
 
 var app = builder.Build();

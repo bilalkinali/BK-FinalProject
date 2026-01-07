@@ -11,14 +11,11 @@ using SalesforceService.Infrastructure.Services.Schema;
 
 namespace SalesforceService.Infrastructure.Messaging.Inbound;
 
-public class SalesforceInboundSubscriber : BackgroundService, ISalesforceInboundSubscriber
+public class SalesforceInboundSubscriber : BackgroundService
 {
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly ILogger<SalesforceInboundSubscriber> _logger;
-
     private readonly PubSub.PubSubClient _client;
-
-    //private readonly DaprClient _daprClient;
     private readonly IConfiguration _config;
     private readonly ISalesforceSchemaService _schemaService;
     private readonly ISalesforceAuthService _authService;
@@ -26,7 +23,6 @@ public class SalesforceInboundSubscriber : BackgroundService, ISalesforceInbound
     public SalesforceInboundSubscriber(
         IServiceScopeFactory scopeFactory,
         ILogger<SalesforceInboundSubscriber> logger,
-        //DaprClient daprClient,
         PubSub.PubSubClient client,
         IConfiguration config,
         ISalesforceSchemaService schemaService,
@@ -35,7 +31,6 @@ public class SalesforceInboundSubscriber : BackgroundService, ISalesforceInbound
         _scopeFactory = scopeFactory;
         _logger = logger;
         _client = client;
-        //_daprClient = daprClient;
         _config = config;
         _schemaService = schemaService;
         _authService = authService;
@@ -61,8 +56,7 @@ public class SalesforceInboundSubscriber : BackgroundService, ISalesforceInbound
 
         var topics = _config.GetSection("Salesforce:InboundTopics").Get<string[]>()!;
 
-        var tasks = topics.Select(topic =>
-            Task.Run(() => StartTopicSubscriptionAsync(topic, cancellationToken), cancellationToken)).ToArray();
+        var tasks = topics.Select(topic => StartTopicSubscriptionAsync(topic, cancellationToken));
 
         await Task.WhenAll(tasks);
     }
