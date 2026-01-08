@@ -1,13 +1,8 @@
 using SalesforceService.Api.Endpoints;
 using SalesforceService.Application;
-using SalesforceService.Application.Services;
 using SalesforceService.Application.Services.Interfaces;
 using SalesforceService.Infrastructure;
-using SalesforceService.Infrastructure.Messaging.Inbound;
-using SalesforceService.Infrastructure.Messaging.Outbound;
 using SalesforceService.Infrastructure.Services.Schema;
-
-//using SalesforceService.Api.Schema;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -57,7 +52,14 @@ using (var scope = app.Services.CreateScope())
         .Get<string[]>()!;
     foreach (var topic in outboundTopics)
     {
-        await schemaService.PreloadSchemaIdForTopicAsync(topic);
+        try
+        {
+            await schemaService.PreloadSchemaIdForTopicAsync(topic);
+        }
+        catch (Exception ex)
+        {
+            app.Logger.LogWarning(ex, "Failed to preload schema for topic {Topic}.", topic);
+        }
     }
 }
 
