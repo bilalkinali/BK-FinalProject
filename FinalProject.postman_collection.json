@@ -1,0 +1,533 @@
+{
+	"info": {
+		"_postman_id": "bdf8ff58-e843-4b83-a783-79043b670a7f",
+		"name": "FinalProject",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "39661343"
+	},
+	"item": [
+		{
+			"name": "ContentModerationService",
+			"item": [
+				{
+					"name": "http://localhost:5065/events/contentmoderation",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"ContentId\": \"123\",\r\n    \"Content\": \"Testing 123\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5065/events/contentmoderation",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5065",
+							"path": [
+								"events",
+								"contentmoderation"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Moderation Results",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5065/api/moderationresults",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5065",
+							"path": [
+								"api",
+								"moderationresults"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Single Moderation Result",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5065/api/moderationresults/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5065",
+							"path": [
+								"api",
+								"moderationresults",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "SalesforceService",
+			"item": [
+				{
+					"name": "Get Inbound Events",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5264/api/inboundevents",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5264",
+							"path": [
+								"api",
+								"inboundevents"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Single Inbound Event",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5264/api/inboundevents/5",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5264",
+							"path": [
+								"api",
+								"inboundevents",
+								"5"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Outbound Events",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5264/api/outboundevents",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5264",
+							"path": [
+								"api",
+								"outboundevents"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Single Outbound Event",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5264/api/outboundevents/5",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5264",
+							"path": [
+								"api",
+								"outboundevents",
+								"5"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Gateway",
+			"item": [
+				{
+					"name": "SalesforceService",
+					"item": [
+						{
+							"name": "Get Inbound Events",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:5005/api/salesforce/api/inboundevents",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5005",
+									"path": [
+										"api",
+										"salesforce",
+										"api",
+										"inboundevents"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Single Inbound Event",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:5005/api/salesforce/api/inboundevents/5",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5005",
+									"path": [
+										"api",
+										"salesforce",
+										"api",
+										"inboundevents",
+										"5"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Outbound Events",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:5005/api/salesforce/api/outboundevents",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5005",
+									"path": [
+										"api",
+										"salesforce",
+										"api",
+										"outboundevents"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Single Outbound Event",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:5005/api/salesforce/api/outboundevents/5",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5005",
+									"path": [
+										"api",
+										"salesforce",
+										"api",
+										"outboundevents",
+										"5"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "ContentModerationService",
+					"item": [
+						{
+							"name": "Get Moderation Results",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:5005/api/contentmoderation/api/moderationresults",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5005",
+									"path": [
+										"api",
+										"contentmoderation",
+										"api",
+										"moderationresults"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Single Moderation Result",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:5005/api/contentmoderation/api/moderationresults/1",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5005",
+									"path": [
+										"api",
+										"contentmoderation",
+										"api",
+										"moderationresults",
+										"1"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Oracle",
+			"item": [
+				{
+					"name": "Gateway",
+					"item": [
+						{
+							"name": "SalesforceService",
+							"item": [
+								{
+									"name": "Get Inbound Events",
+									"request": {
+										"auth": {
+											"type": "noauth"
+										},
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "http://141.147.31.37:5005/api/salesforce/api/inboundevents",
+											"protocol": "http",
+											"host": [
+												"141",
+												"147",
+												"31",
+												"37"
+											],
+											"port": "5005",
+											"path": [
+												"api",
+												"salesforce",
+												"api",
+												"inboundevents"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Get Single Inbound Event",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "http://141.147.31.37:5005/api/salesforce/api/inboundevents/5",
+											"protocol": "http",
+											"host": [
+												"141",
+												"147",
+												"31",
+												"37"
+											],
+											"port": "5005",
+											"path": [
+												"api",
+												"salesforce",
+												"api",
+												"inboundevents",
+												"5"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Get Outbound Events",
+									"request": {
+										"auth": {
+											"type": "noauth"
+										},
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "http://141.147.31.37:5005/api/salesforce/api/outboundevents",
+											"protocol": "http",
+											"host": [
+												"141",
+												"147",
+												"31",
+												"37"
+											],
+											"port": "5005",
+											"path": [
+												"api",
+												"salesforce",
+												"api",
+												"outboundevents"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Get Single Outbound Event",
+									"request": {
+										"auth": {
+											"type": "noauth"
+										},
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "http://141.147.31.37:5005/api/salesforce/api/outboundevents/5",
+											"protocol": "http",
+											"host": [
+												"141",
+												"147",
+												"31",
+												"37"
+											],
+											"port": "5005",
+											"path": [
+												"api",
+												"salesforce",
+												"api",
+												"outboundevents",
+												"5"
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "ContentModerationService",
+							"item": [
+								{
+									"name": "Get Moderation Results",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "http://141.147.31.37:5005/api/contentmoderation/api/moderationresults",
+											"protocol": "http",
+											"host": [
+												"141",
+												"147",
+												"31",
+												"37"
+											],
+											"port": "5005",
+											"path": [
+												"api",
+												"contentmoderation",
+												"api",
+												"moderationresults"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Get Single Moderation Result",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "http://141.147.31.37:5005/api/contentmoderation/api/moderationresults/1",
+											"protocol": "http",
+											"host": [
+												"141",
+												"147",
+												"31",
+												"37"
+											],
+											"port": "5005",
+											"path": [
+												"api",
+												"contentmoderation",
+												"api",
+												"moderationresults",
+												"1"
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						}
+					]
+				}
+			]
+		}
+	]
+}
