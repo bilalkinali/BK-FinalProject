@@ -1,0 +1,41 @@
+name: SalesforceService - Deploy
+
+on:
+  workflow_dispatch:
+
+  push:
+    branches: [ master ]
+    paths:
+      - 'SalesforceService/**'
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Login to Docker Hub
+      run: |
+        echo "${{ secrets.DOCKER_PASSWORD }}" | \
+        docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+    - name: Build & Push SalesforceService
+      run: |
+        docker build \
+          -t bilalkinali/salesforceservice-api:latest \
+          -f SalesforceService/SalesforceService.Api/Dockerfile \
+          .
+        docker push bilalkinali/salesforceservice-api:latest
+
+    - name: Deploy to Oracle VM
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.SSH_HOST }}
+        username: ${{ secrets.SSH_USER }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        script: |
+          cd Projects/5SemFinalProject
+          docker pull bilalkinali/salesforceservice-api:latest
+          docker compose up -d --force-recreate
+          docker image prune -f
