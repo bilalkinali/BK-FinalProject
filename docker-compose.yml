@@ -35,6 +35,15 @@ services:
       rabbitmq:
         condition: service_healthy
 
+  # Postgres Databases
+  contentmoderation_db:
+    image: postgres:16
+    container_name: contentmoderation_db
+
+  salesforce_db:
+    image: postgres:16
+    container_name: salesforce_db
+
   rabbitmq:
     image: rabbitmq:3-management
     container_name: rabbitmq
