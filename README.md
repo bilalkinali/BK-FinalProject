@@ -1,3 +1,5 @@
+<img width="1062" height="659" alt="image" src="https://github.com/user-attachments/assets/137b11ea-db2c-4bb2-ad53-eb7e5f0405e0" />
+
 # Event-Driven Salesforce Integration Platform
 
 This repository contains my final 5th semester project for the Datamatiker (AP Degree in Computer Science) program at UCL.
