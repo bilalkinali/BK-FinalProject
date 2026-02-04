@@ -21,6 +21,6 @@ app.MapReverseProxy();
 //app.UseHttpsRedirection();
 
 
-app.MapGet("/test", () => "Hello World - From Gateway Service");
+app.MapGet("/test", () => "Hello World - From Gateway Service"); // test
 
 app.Run();
