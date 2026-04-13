@@ -94,5 +94,3 @@ The design explicitly accounts for:
 The system favors **eventual consistency** and recovery over synchronous guarantees.
 
 ---
-
-## 📦 Repository Structure (Simplified)
